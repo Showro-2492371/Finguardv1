@@ -16,4 +16,5 @@ public interface TransactionMonitoringRepository extends JpaRepository<Transacti
     long countByCustomerCustomerIdAndStatusAndCreatedAtAfter(Long customerId,
                                                              TransactionStatus status,
                                                              LocalDateTime createdAt);
+    int countByStatus(TransactionStatus status);
 }
