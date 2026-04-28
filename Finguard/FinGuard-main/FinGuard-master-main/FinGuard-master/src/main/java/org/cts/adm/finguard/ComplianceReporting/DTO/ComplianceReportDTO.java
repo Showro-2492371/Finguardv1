@@ -5,13 +5,13 @@ import java.time.LocalDateTime;
 public class ComplianceReportDTO {
     private Long reportId;
     private int fraudCases;
-    private double riskScore;
+    private double avgRiskScore;
     private LocalDateTime generatedDate;
 
-    public ComplianceReportDTO(int fraudCases, double riskScore, LocalDateTime generatedDate, Long reportId) {
+    public ComplianceReportDTO(int fraudCases, double avgRiskScore, LocalDateTime generatedDate, Long reportId) {
         this.reportId = reportId;
         this.fraudCases = fraudCases;
-        this.riskScore = riskScore;
+        this.avgRiskScore = avgRiskScore;
         this.generatedDate = generatedDate;
     }
 
@@ -26,7 +26,7 @@ public class ComplianceReportDTO {
 
 
     public double getRiskScore() {
-        return riskScore;
+        return avgRiskScore;
     }
 
 

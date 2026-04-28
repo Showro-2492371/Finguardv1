@@ -1,5 +1,6 @@
 package org.cts.adm.finguard.ComplianceReporting.Service;
 
+import org.cts.adm.finguard.ComplianceReporting.DTO.ComplianceReportDTO;
 import org.cts.adm.finguard.ComplianceReporting.Model.*;
 import org.cts.adm.finguard.ComplianceReporting.Repository.*;
 import org.cts.adm.finguard.RiskAlert.Repository.RiskAlertRepository;
@@ -33,7 +34,7 @@ public class ComplianceService {
         this.transactionRepo = transactionRepo;
     }
 
-    // ✅ Generate AML Report
+
     public ComplianceReport generateReport(String user) {
 
         int fraudCases = transactionRepo.countByStatus(TransactionStatus.FLAGGED);
@@ -52,7 +53,7 @@ public class ComplianceService {
 
         complianceRepo.save(report);
 
-        // Audit Trail
+
         auditRepo.save(new AuditTrail(
                 "Generated Compliance Report",
                 user,
@@ -62,12 +63,12 @@ public class ComplianceService {
         return report;
     }
 
-    // ✅ Get all reports
+
     public List<ComplianceReport> getReports() {
         return complianceRepo.findAll();
     }
 
-    // ✅ Export report (TEXT format - no third party)
+
     public String exportReport(Long reportId, String user) throws IOException {
 
         ComplianceReport report = complianceRepo.findById(reportId)
@@ -94,7 +95,7 @@ public class ComplianceService {
         writer.flush();
         writer.close();
 
-        // Audit log
+
         auditRepo.save(new AuditTrail(
                 "CSV saved at: " + filePath,
                 user,
@@ -106,6 +107,7 @@ public class ComplianceService {
     public List<AuditTrail> getAuditLogs() {
         return auditRepo.findAll();
     }
+
 
 
 }

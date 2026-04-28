@@ -15,7 +15,7 @@ public class ComplianceReport {
 
     private LocalDateTime generatedDate;
 
-    // Constructors
+
     public ComplianceReport() {}
 
     public ComplianceReport(int fraudCases, double avgRiskScore, LocalDateTime generatedDate) {
@@ -24,7 +24,7 @@ public class ComplianceReport {
         this.generatedDate = generatedDate;
     }
 
-    // Getters & Setters
+
     public Long getReportId() { return reportId; }
     public int getFraudCases() { return fraudCases; }
     public void setFraudCases(int fraudCases) { this.fraudCases = fraudCases; }

@@ -40,7 +40,9 @@ public class SecurityConfig {
                                 "/api/customer/kyc/download/**",
                                 "/api/customer/transaction/add",
                                 "/api/risk/alerts",
-                                "/api/risk/alerts/**"
+                                "/api/risk/alerts/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**"
                         ).permitAll() // login only
                         .anyRequest().authenticated()
                 )

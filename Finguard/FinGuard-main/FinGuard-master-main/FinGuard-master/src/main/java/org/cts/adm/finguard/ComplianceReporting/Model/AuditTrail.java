@@ -14,7 +14,7 @@ public class AuditTrail {
     private String performedBy;
     private LocalDateTime timestamp;
 
-    // Constructors
+
     public AuditTrail() {}
 
     public AuditTrail(String action, String performedBy, LocalDateTime timestamp) {
@@ -23,7 +23,7 @@ public class AuditTrail {
         this.timestamp = timestamp;
     }
 
-    // Getters & Setters
+
     public Long getId() { return id; }
     public String getAction() { return action; }
     public void setAction(String action) { this.action = action; }
