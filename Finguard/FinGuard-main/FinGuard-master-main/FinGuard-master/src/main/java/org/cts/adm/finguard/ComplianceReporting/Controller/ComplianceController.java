@@ -1,5 +1,8 @@
 package org.cts.adm.finguard.ComplianceReporting.Controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.cts.adm.finguard.ComplianceReporting.DTO.ComplianceReportDTO;
 import org.cts.adm.finguard.ComplianceReporting.Model.ComplianceReport;
 import org.cts.adm.finguard.ComplianceReporting.Service.ComplianceService;
 import org.cts.adm.finguard.CustomerOnboarding.Model.Customer;
@@ -11,9 +14,11 @@ import org.cts.adm.finguard.ComplianceReporting.Model.AuditTrail;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/compliance")
+@Slf4j
 public class ComplianceController {
 
     private final ComplianceService service;
@@ -28,15 +33,25 @@ public class ComplianceController {
 
 
     @PostMapping("/generate")
-    public ComplianceReport generate(@RequestParam String user) {
-
-        return service.generateReport(user);
+    public List<ComplianceReportDTO> generate(@RequestParam String user) {
+        return service.generateReports(user);
     }
 
 
     @GetMapping("/allreports")
-    public List<ComplianceReport> getAll() {
+    public List<ComplianceReportDTO> getAll() {
         return service.getReports();
+    }
+
+
+    @GetMapping("/reports/{customerId}")
+    public List<ComplianceReportDTO> getByCustomer(@PathVariable Long customerId) {
+        return service.getByCustomer(customerId);
+    }
+
+    @GetMapping("/summary")
+    public Map<String, Object> summary() {
+        return service.getSummary();
     }
 
     @GetMapping("/export/csv/{id}")
@@ -48,12 +63,15 @@ public class ComplianceController {
           System.out.println("No customer");
       }
 
-        String csvData = service.exportReport(id, user);
+        String file = service.exportReport(id, user);
 
-        return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=report.csv")
-                .header("Content-Type", "text/csv")
-                .body(csvData);
+        return ResponseEntity.ok("CSV generated at: " + file);
+    }
+
+    @DeleteMapping("/reports/{customerId}")
+    public String delete(@PathVariable Long customerId) {
+        service.deleteReport(customerId);
+        return "Deleted";
     }
 
     @GetMapping("/audit-logs")
