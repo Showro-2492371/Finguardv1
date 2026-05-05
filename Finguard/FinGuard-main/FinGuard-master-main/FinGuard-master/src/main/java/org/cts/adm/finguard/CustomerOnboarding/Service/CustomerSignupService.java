@@ -2,25 +2,33 @@ package org.cts.adm.finguard.CustomerOnboarding.Service;
 
 import org.cts.adm.finguard.CustomerOnboarding.Model.Customer;
 import org.cts.adm.finguard.CustomerOnboarding.Repository.CustomerRepository;
-import org.cts.adm.finguard.KycVerification.Service.KycVerificationService;
-import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CustomerSignupService {
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(CustomerSignupService.class);
+
     private final CustomerRepository customerRepository;
 
-    public CustomerSignupService(CustomerRepository customerRepository,
-                                 KycVerificationService kycVerificationService){
+    public CustomerSignupService(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
 
-    public void SignUp(Customer customer){
-        try{
-            ResponseEntity.ok(customerRepository.save(customer));
+    public void SignUp(Customer customer) {
+
+        logger.info("Customer signup process started for name={}", customer.getName());
+        logger.debug("Saving customer details to database");
+
+        try {
+            customerRepository.save(customer);
+            logger.info("Customer signup successful for name={}", customer.getName());
         } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+            logger.error("Customer signup failed for name={}", customer.getName(), e);
+            throw e;
         }
     }
 }
