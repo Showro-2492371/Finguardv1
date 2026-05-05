@@ -16,12 +16,14 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Slf4j
@@ -100,6 +102,50 @@ public class ComplianceService {
 
         return result;
     }
+
+
+    @Transactional
+    public ComplianceReportDTO generateReportByCustomer(Long customerId, String user) {
+
+        log.info("Generating report for customerId={}", customerId);
+
+        List<RiskAlert> alerts = riskAlertRepo.findAll().stream()
+                .filter(a -> a.getTransaction().getCustomer().getCustomerId().equals(customerId))
+                .toList();
+
+        if (alerts.isEmpty()) {
+            log.warn("No alerts found for customerId={}", customerId);
+            throw new ResourceNotFoundException("No alerts found for customerId: " + customerId);
+        }
+
+        int fraudCases = alerts.size();
+
+        double riskScore = alerts.stream()
+                .mapToDouble(a -> a.getRiskScore().doubleValue())
+                .sum();
+
+        complianceRepo.deleteByCustomerId(customerId);
+
+        ComplianceReport report = ComplianceReport.builder()
+                .customerId(customerId)
+                .fraudCases(fraudCases)
+                .riskScore(riskScore)
+                .generatedDate(LocalDateTime.now())
+                .build();
+
+        complianceRepo.save(report);
+
+        auditRepo.save(new AuditTrail(
+                "Generated report for customer " + customerId,
+                user,
+                LocalDateTime.now()
+        ));
+
+        log.info("Report generated successfully for customerId={}", customerId);
+
+        return mapToDTO(report);
+    }
+
 
 
 
@@ -181,6 +227,55 @@ public class ComplianceService {
 
     }
 
+
+    public List<ComplianceReportDTO> filterReports(
+            LocalDate startDate,
+            LocalDate endDate,
+            Integer month,
+            Integer year) {
+
+        log.info("Filtering reports startDate={}, endDate={}, month={}, year={}",
+                startDate, endDate, month, year);
+
+        List<ComplianceReport> reports = complianceRepo.findAll();
+
+        if (reports.isEmpty()) {
+            throw new ResourceNotFoundException("No reports available");
+        }
+
+        Stream<ComplianceReport> stream = reports.stream();
+
+        if (startDate != null && endDate != null) {
+            stream = stream.filter(r ->
+                    r.getGeneratedDate().toLocalDate().isAfter(startDate.minusDays(1)) &&
+                            r.getGeneratedDate().toLocalDate().isBefore(endDate.plusDays(1))
+            );
+        }
+
+        if (month != null) {
+            stream = stream.filter(r ->
+                    r.getGeneratedDate().getMonthValue() == month
+            );
+        }
+
+        if (year != null) {
+            stream = stream.filter(r ->
+                    r.getGeneratedDate().getYear() == year
+            );
+        }
+
+        List<ComplianceReportDTO> result = stream.map(this::mapToDTO).toList();
+
+        if (result.isEmpty()) {
+            throw new ResourceNotFoundException("No reports found for given filters");
+        }
+
+        return result;
+    }
+
+
+
+
     public List<AuditTrail> getAuditLogs() {
         return auditRepo.findAll();
     }
@@ -195,6 +290,7 @@ public class ComplianceService {
                 r.getGeneratedDate()
         );
     }
+
 
 
 

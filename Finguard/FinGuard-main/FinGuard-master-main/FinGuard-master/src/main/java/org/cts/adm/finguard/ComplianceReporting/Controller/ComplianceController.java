@@ -8,11 +8,13 @@ import org.cts.adm.finguard.ComplianceReporting.Service.ComplianceService;
 import org.cts.adm.finguard.CustomerOnboarding.Model.Customer;
 import org.cts.adm.finguard.CustomerOnboarding.Repository.CustomerRepository;
 import org.cts.adm.finguard.CustomerOnboarding.Service.CustomerLoginService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.cts.adm.finguard.ComplianceReporting.Model.AuditTrail;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -72,6 +74,34 @@ public class ComplianceController {
     public String delete(@PathVariable Long customerId) {
         service.deleteReport(customerId);
         return "Deleted";
+    }
+
+    @PostMapping("/generate/{customerId}")
+    public ComplianceReportDTO generateForCustomer(
+            @PathVariable Long customerId,
+            @RequestParam String user) {
+
+        log.info("API: Generate report for customerId={}", customerId);
+
+        return service.generateReportByCustomer(customerId, user);
+    }
+
+    @GetMapping("/reports/filter")
+    public List<ComplianceReportDTO> filterReports(
+
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate startDate,
+
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate endDate,
+
+            @RequestParam(required = false) Integer month,
+
+            @RequestParam(required = false) Integer year) {
+
+        log.info("API: Filter reports");
+
+        return service.filterReports(startDate, endDate, month, year);
     }
 
     @GetMapping("/audit-logs")
