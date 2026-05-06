@@ -3,6 +3,7 @@ package org.cts.adm.finguard.CustomerOnboarding.Model;
 import jakarta.persistence.*;
 import org.cts.adm.finguard.CustomerOnboarding.Eunm.AccountStatus;
 import org.cts.adm.finguard.CustomerOnboarding.Eunm.KycStatus;
+import org.cts.adm.finguard.CustomerOnboarding.Eunm.Role;
 import org.cts.adm.finguard.TransactionMonitoring.Model.Transaction;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
@@ -33,6 +34,11 @@ public class Customer {
     @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.ROLE_USER;
+
+
     @Column(nullable = false)
     private boolean mfaEnabled;
 
@@ -44,6 +50,13 @@ public class Customer {
     @JsonIgnore
     private List<Transaction> transactions;
 
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 
     public Long getCustomerId() {
         return customerId;

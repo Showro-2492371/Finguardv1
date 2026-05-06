@@ -11,11 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+
 @RestController
-@RequestMapping("/api/customer/kyc")
+@RequestMapping("/api")
 public class KycVerificationController {
 
     private static final Logger logger =
@@ -33,33 +35,31 @@ public class KycVerificationController {
         this.customerLoginService = customerLoginService;
     }
 
-    @PostMapping("/upload")
+    // ✅ USER only
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/customer/kyc/upload")
     public ResponseEntity<String> upload(
             @RequestParam MultipartFile file,
             @RequestParam Long customerId) throws Exception {
 
         logger.info("Received KYC upload request for customerId={}", customerId);
-        logger.debug("Uploaded file name={}, type={}",
-                file.getOriginalFilename(), file.getContentType());
+
         Customer customer = customerLoginService.getCustomerById(customerId);
-        if(customer.getKycStatus() == KycStatus.NOT_STARTED){
+        if (customer.getKycStatus() == KycStatus.NOT_STARTED) {
             kycVerificationService.saveKycDocument(file, customerId);
             customer.setKycStatus(KycStatus.IN_PROGRESS);
             customerRepository.save(customer);
-            logger.info("KYC upload successful for customerId={}", customerId);
             return ResponseEntity.ok("KYC document uploaded successfully");
         }
-        logger.info("KYC upload failed for customerId={} because its already their", customerId);
-        return  ResponseEntity.ok("KYC document upload failed because documents are already uploaded before try to update it");
+        return ResponseEntity.ok("KYC already uploaded earlier");
     }
 
-    @GetMapping("/download/{customerId}")
+    // ✅ USER only
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/customer/kyc/download/{customerId}")
     public ResponseEntity<byte[]> download(@PathVariable Long customerId) {
-        logger.info("Received KYC download request for customerId={}", customerId);
 
         var doc = kycVerificationService.findKycDocumentByCustomerId(customerId);
-
-        logger.info("KYC document download successful for customerId={}", customerId);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(doc.getDocumentType()))
@@ -68,39 +68,35 @@ public class KycVerificationController {
                 .body(doc.getFileData());
     }
 
-    @PutMapping("/update-document")
+    // ✅ USER only
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping("/customer/kyc/update-document")
     public ResponseEntity<String> updateDocument(
             @RequestParam MultipartFile file,
             @RequestParam Long customerId) throws Exception {
 
-        logger.info("Received KYC document update request for customerId={}", customerId);
-
         kycVerificationService.updateKycDocument(file, customerId);
-
-        logger.info("KYC document updated successfully for customerId={}", customerId);
         return ResponseEntity.ok("KYC document updated successfully");
     }
 
-    @PutMapping("/update-status")
+    // ✅ ADMIN only
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/admin/kyc/update-status")
     public ResponseEntity<String> updateStatus(
             @RequestParam Long customerId,
             @RequestParam KycStatus status) {
 
-        logger.info("Updating KYC status for customerId={} to {}", customerId, status);
-
         kycVerificationService.updateKycStatus(customerId, status);
-
-        logger.info("KYC status updated successfully for customerId={}", customerId);
         return ResponseEntity.ok("KYC status updated to " + status);
     }
 
-    @DeleteMapping("/delete/{customerId}")
+    // ✅ USER & ADMIN
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @DeleteMapping("/customer/kyc/delete/{customerId}")
     public ResponseEntity<String> delete(@PathVariable Long customerId) {
-        logger.warn("KYC delete request received for customerId={}", customerId);
 
         kycVerificationService.deleteKycDocument(customerId);
-
-        logger.info("KYC document deleted successfully for customerId={}", customerId);
         return ResponseEntity.ok("KYC document deleted successfully");
     }
 }
+

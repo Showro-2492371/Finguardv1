@@ -22,26 +22,44 @@ public class CustomerLoginService {
         this.jwtUtil = jwtUtil;
     }
 
+
     public String login(String name, String password) {
 
-        logger.info("Login attempt started for customer name={}", name);
-
         Customer customer = customerRepository.findCustomersByName(name)
-                .orElseThrow(() -> {
-                    logger.warn("Login failed: user not found for name={}", name);
-                    return new RuntimeException("User not found");
-                });
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!password.equals(customer.getPassword())) {
-            logger.warn("Login failed: invalid password for name={}", name);
             throw new RuntimeException("Invalid password");
         }
 
-        String token = jwtUtil.generateToken(name);
-
-        logger.info("Login successful for customer name={}", name);
-        return token;
+        return jwtUtil.generateToken(
+                customer.getCustomerId(),
+                customer.getName(),
+                customer.getRole().name()
+        );
     }
+
+
+//    public String login(String name, String password) {
+//
+//        logger.info("Login attempt started for customer name={}", name);
+//
+//        Customer customer = customerRepository.findCustomersByName(name)
+//                .orElseThrow(() -> {
+//                    logger.warn("Login failed: user not found for name={}", name);
+//                    return new RuntimeException("User not found");
+//                });
+//
+//        if (!password.equals(customer.getPassword())) {
+//            logger.warn("Login failed: invalid password for name={}", name);
+//            throw new RuntimeException("Invalid password");
+//        }
+//
+//        String token = jwtUtil.generateToken(name);
+//
+//        logger.info("Login successful for customer name={}", name);
+//        return token;
+//    }
 
     public Customer getCustomerByName(String name) {
         logger.debug("Fetching customer by name={}", name);
