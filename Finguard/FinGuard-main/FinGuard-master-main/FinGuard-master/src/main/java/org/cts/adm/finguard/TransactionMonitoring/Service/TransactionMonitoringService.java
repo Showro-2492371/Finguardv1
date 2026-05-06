@@ -49,7 +49,7 @@ public class TransactionMonitoringService {
             result.setTransactionId(savedTransaction.getTransactionId());
 
             result.setCreatedAt(savedTransaction.getCreatedAt());
-            riskAlertService.evaluateAndPersist(savedTransaction);
+            riskAlertService.evaluateAndCreateAlert(savedTransaction);
             return result;
         } catch (RuntimeException e) {
             throw new RuntimeException(e);

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
 import org.cts.adm.finguard.CustomerOnboarding.Model.Customer;
 
 import java.time.LocalDateTime;
@@ -20,5 +21,6 @@ public class KycDocumentDto {
     private String documentType;
     private byte[] fileData;
     private Customer customer;
+    @Default
     private LocalDateTime uploadedAt = LocalDateTime.now();
 }
