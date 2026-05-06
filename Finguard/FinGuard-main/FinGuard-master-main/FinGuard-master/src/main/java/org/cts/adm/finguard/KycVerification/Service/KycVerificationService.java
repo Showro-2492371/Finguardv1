@@ -2,11 +2,13 @@ package org.cts.adm.finguard.KycVerification.Service;
 
 import org.cts.adm.finguard.CustomerOnboarding.Eunm.KycStatus;
 import org.cts.adm.finguard.CustomerOnboarding.Model.Customer;
+import org.cts.adm.finguard.CustomerOnboarding.Repository.CustomerRepository;
 import org.cts.adm.finguard.CustomerOnboarding.Service.CustomerLoginService;
 import org.cts.adm.finguard.KycVerification.Model.KycDocument;
 import org.cts.adm.finguard.KycVerification.Repository.KycDocumentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +22,8 @@ public class KycVerificationService {
 
     private final KycDocumentRepository kycDocumentRepository;
     private final CustomerLoginService customerLoginService;
+    @Autowired
+    private CustomerRepository customerRepository;
 
     public KycVerificationService(KycDocumentRepository kycDocumentRepository,
                                   CustomerLoginService customerLoginService) {
@@ -78,6 +82,7 @@ public class KycVerificationService {
         Customer customer = customerLoginService.getCustomerById(customerId);
         customer.setKycStatus(status);
 
+        customerRepository.save(customer);
         logger.info("KYC status updated successfully for customerId={}", customerId);
     }
 
