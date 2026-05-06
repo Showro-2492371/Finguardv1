@@ -53,7 +53,7 @@ public class SecurityConfig {
                         .hasAnyRole("USER", "ADMIN")
 
                         // ADMIN-only endpoints (future safe)
-                        .requestMatchers("/api/admin/**")
+                        .requestMatchers("/api/admin/**","/api/compliance")
                         .hasRole("ADMIN")
 
                         // Everything else secured

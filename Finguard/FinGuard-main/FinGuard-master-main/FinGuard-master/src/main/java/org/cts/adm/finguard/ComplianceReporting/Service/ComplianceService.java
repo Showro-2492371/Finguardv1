@@ -77,7 +77,7 @@ public class ComplianceService {
                     .mapToDouble(a -> a.getRiskScore().doubleValue())
                     .sum();
 
-            complianceRepo.deleteByCustomerId(customerId);
+//            complianceRepo.deleteByCustomerId(customerId);
 
             ComplianceReport report = ComplianceReport.builder()
                     .customerId(customerId)
@@ -124,7 +124,7 @@ public class ComplianceService {
                 .mapToDouble(a -> a.getRiskScore().doubleValue())
                 .sum();
 
-        complianceRepo.deleteByCustomerId(customerId);
+//        complianceRepo.deleteByCustomerId(customerId);
 
         ComplianceReport report = ComplianceReport.builder()
                 .customerId(customerId)
@@ -184,28 +184,49 @@ public class ComplianceService {
     }
 
 
-    public String exportReport(Long reportId, String user) throws IOException {
 
-        ComplianceReport report = complianceRepo.findById(reportId)
-                .orElseThrow(() -> new ResourceNotFoundException("Report not found with id: "+reportId));
+
+    public String exportReport(Long customerId, String user) throws IOException {
+
+        log.info("Exporting report for customerId={}", customerId);
+
+        List<ComplianceReport> reports = complianceRepo.findByCustomerId(customerId);
+
+        if (reports.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No report found for customerId: " + customerId
+            );
+        }
+
+        // Assuming latest report (only one usually exists)
+        ComplianceReport report = reports.get(0);
 
         File dir = new File("reports");
-        if (!dir.exists()) dir.mkdirs();
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
 
-        String filePath = "reports/report_" + reportId + ".csv";
+        String filePath = "reports/report_customer_" + customerId + ".csv";
 
-        FileWriter writer = new FileWriter(filePath);
+        try (FileWriter writer = new FileWriter(filePath)) {
 
-        writer.append("ReportId,CustomerId,FraudCases,RiskScore,GeneratedDate\n");
-        writer.append(report.getReportId() + "," +
-                report.getCustomerId() + "," +
-                report.getFraudCases() + "," +
-                report.getRiskScore() + "," +
-                report.getGeneratedDate());
+            writer.append("ReportId,CustomerId,FraudCases,RiskScore,GeneratedDate\n");
+            writer.append(
+                    report.getReportId() + "," +
+                            report.getCustomerId() + "," +
+                            report.getFraudCases() + "," +
+                            report.getRiskScore() + "," +
+                            report.getGeneratedDate()
+            );
+        }
 
-        writer.close();
+        auditRepo.save(new AuditTrail(
+                "Exported CSV for customer " + customerId,
+                user,
+                LocalDateTime.now()
+        ));
 
-        auditRepo.save(new AuditTrail("Exported CSV for report " + reportId, user, LocalDateTime.now()));
+        log.info("Report exported successfully for customerId={}", customerId);
 
         return filePath;
     }
