@@ -12,6 +12,8 @@ import org.cts.adm.finguard.TransactionMonitoring.Enum.TransactionStatus;
 import org.cts.adm.finguard.TransactionMonitoring.Model.Transaction;
 import org.cts.adm.finguard.TransactionMonitoring.Repository.TransactionMonitoringRepository;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,6 +23,8 @@ import java.util.UUID;
 
 @Service
 public class TransactionMonitoringService {
+
+    private static final Logger logger = LoggerFactory.getLogger(TransactionMonitoringService.class);
 
     private static final BigDecimal HIGH_VALUE_THRESHOLD = new BigDecimal("50000");
     private static final BigDecimal ATM_HIGH_VALUE_THRESHOLD = new BigDecimal("20000");
@@ -41,47 +45,63 @@ public class TransactionMonitoringService {
 
     public FraudCheckResponse createTransaction(TransactionRequest transactionRequest){
         try {
+            logger.info("Creating transaction for customerId={} amount={} channel={}",
+                    transactionRequest.getCustomerId(), transactionRequest.getAmount(), transactionRequest.getChannel());
             Transaction transaction = buildTransaction(transactionRequest);
             String customId = transactionRequest.getCustomerId() + "-" + UUID.randomUUID().toString();
             transaction.setTransactionId(customId);
             FraudCheckResponse result = evaluateFraud(transaction);
+            logger.info("Fraud evaluation result: status={} riskScore={}", result.getStatus(), result.getRiskScore());
             Transaction savedTransaction = transactionMonitoringRepository.save(transaction);
             result.setTransactionId(savedTransaction.getTransactionId());
 
             result.setCreatedAt(savedTransaction.getCreatedAt());
+            logger.info("Transaction saved with id={} for customerId={}", savedTransaction.getTransactionId(), savedTransaction.getCustomer().getCustomerId());
             riskAlertService.evaluateAndCreateAlert(savedTransaction);
             return result;
         } catch (RuntimeException e) {
+            logger.error("Error while creating transaction", e);
             throw new RuntimeException(e);
         }
     }
 
 
     public FraudCheckResponse detectFraud(TransactionRequest transactionRequest) {
+        logger.info("Detecting fraud for customerId={} amount={} channel={}",
+                transactionRequest.getCustomerId(), transactionRequest.getAmount(), transactionRequest.getChannel());
         Transaction transaction = buildTransaction(transactionRequest);
 
-        return evaluateFraud(transaction);
+        FraudCheckResponse response = evaluateFraud(transaction);
+        logger.info("Detect fraud result: customerId={} status={} riskScore={}",
+                transaction.getCustomer() != null ? transaction.getCustomer().getCustomerId() : null,
+                response.getStatus(), response.getRiskScore());
+        return response;
     }
 
     private Transaction buildTransaction(TransactionRequest transactionRequest) {
         if (transactionRequest.getCustomerId() == null) {
+            logger.error("Customer id is missing in transaction request");
             throw new RuntimeException("Customer id is required");
         }
 
         Customer customer = customerLoginService.getCustomerById(transactionRequest.getCustomerId());
         if (customer == null) {
+            logger.error("Customer not found for id={}", transactionRequest.getCustomerId());
             throw new RuntimeException("Customer not found");
         }
 
         if (transactionRequest.getAmount() == null) {
+            logger.error("Transaction amount is missing for customerId={}", transactionRequest.getCustomerId());
             throw new RuntimeException("Transaction amount is required");
         }
 
         if (transactionRequest.getChannel() == null) {
+            logger.error("Transaction channel is missing for customerId={}", transactionRequest.getCustomerId());
             throw new RuntimeException("Transaction channel is required");
         }
 
         if (transactionRequest.getTransactionType() == null) {
+            logger.error("Transaction type is missing for customerId={}", transactionRequest.getCustomerId());
             throw new RuntimeException("Transaction type is required");
         }
 
@@ -91,6 +111,8 @@ public class TransactionMonitoringService {
         transaction.setChannel(transactionRequest.getChannel());
         transaction.setTransactionType(transactionRequest.getTransactionType());
         transaction.setCreatedAt(LocalDateTime.now());
+        logger.debug("Built transaction object for customerId={} amount={} channel={}",
+                customer.getCustomerId(), transaction.getAmount(), transaction.getChannel());
         return transaction;
     }
 
@@ -100,6 +122,7 @@ public class TransactionMonitoringService {
             transaction.setRiskScore(BLOCK_THRESHOLD);
             transaction.setFraudReason("Customer information is missing");
             transaction.setStatus(TransactionStatus.BLOCKED);
+            logger.warn("Blocking transaction because customer information is missing");
             return toResponse(transaction, true);
         }
 
@@ -171,6 +194,9 @@ public class TransactionMonitoringService {
         } else {
             transaction.setFraudReason(String.join(", ", reasons));
         }
+
+        logger.info("Evaluated fraud for customerId={} riskScore={} status={} reasons={}",
+                customer.getCustomerId(), riskScore, transaction.getStatus(), transaction.getFraudReason());
 
         return toResponse(transaction, riskScore >= FLAG_THRESHOLD);
     }
