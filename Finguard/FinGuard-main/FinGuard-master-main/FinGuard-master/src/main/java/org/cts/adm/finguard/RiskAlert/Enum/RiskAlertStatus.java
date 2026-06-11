@@ -5,5 +5,6 @@ public enum RiskAlertStatus {
     REVIEWED,
     ESCALATED,
     RESOLVED,
-    CLOSED
+    CLOSED,
+    BLOCKED
 }
