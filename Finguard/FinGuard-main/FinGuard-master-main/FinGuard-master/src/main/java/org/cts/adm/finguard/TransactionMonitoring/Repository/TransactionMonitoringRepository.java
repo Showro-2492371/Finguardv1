@@ -9,12 +9,12 @@ import java.time.LocalDateTime;
 
 @Repository
 public interface TransactionMonitoringRepository extends JpaRepository<Transaction,
-        Long> {
+        String> {
 
     long countByCustomerCustomerIdAndCreatedAtAfter(Long customerId, LocalDateTime createdAt);
 
     long countByCustomerCustomerIdAndStatusAndCreatedAtAfter(Long customerId,
                                                              TransactionStatus status,
                                                              LocalDateTime createdAt);
-//    int countByStatus(TransactionStatus status);
+    int countByStatus(TransactionStatus status);
 }

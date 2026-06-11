@@ -7,8 +7,6 @@ public class CustomerSignupRequest {
     private String password;
     private boolean mfaEnabled;
 
-    public CustomerSignupRequest() {}
-
     public String getName() {
         return name;
     }

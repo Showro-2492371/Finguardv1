@@ -42,7 +42,6 @@ public class KycVerificationController {
         this.customerLoginService = customerLoginService;
     }
 
-    // ✅ USER only
     @PreAuthorize("hasRole('USER')")
     @Operation(
             summary = "Upload KYC document",
@@ -71,7 +70,6 @@ public class KycVerificationController {
         return ResponseEntity.ok("KYC already uploaded earlier");
     }
 
-    // ✅ USER only
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Download KYC document")
     @ApiResponse(
