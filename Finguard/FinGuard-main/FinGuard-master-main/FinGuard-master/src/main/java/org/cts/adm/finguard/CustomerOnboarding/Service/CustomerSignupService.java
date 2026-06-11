@@ -5,6 +5,7 @@ import org.cts.adm.finguard.CustomerOnboarding.Repository.CustomerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.cts.adm.finguard.CustomerOnboarding.Dto.CustomerSignupRequest;
 
 @Service
 public class CustomerSignupService {
@@ -30,5 +31,16 @@ public class CustomerSignupService {
             logger.error("Customer signup failed for name={}", customer.getName(), e);
             throw e;
         }
+    }
+
+    // Overload used by tests: accept DTO and map to entity
+    public void signUp(CustomerSignupRequest request) {
+        Customer c = new Customer();
+        c.setName(request.getName());
+        c.setContactInfo(request.getContactInfo());
+        c.setPassword(request.getPassword());
+        c.setMfaEnabled(request.isMfaEnabled());
+        // delegate to existing save flow
+        SignUp(c);
     }
 }

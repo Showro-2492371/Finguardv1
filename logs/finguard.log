@@ -1,0 +1,148 @@
+2026-05-02 16:53:57 -INFO - Starting FinGuardApplication using Java 21 with PID 19112 (C:\Users\2492371\Downloads\Finguardv1\Finguard\FinGuard-main\FinGuard-master-main\FinGuard-master\target\classes started by 2492371 in C:\Users\2492371\Downloads\Finguardv1)
+2026-05-02 16:53:57 -INFO - No active profile set, falling back to 1 default profile: "default"
+2026-05-02 16:53:57 -INFO - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-05-02 16:53:57 -INFO - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-05-02 16:53:58 -INFO - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-05-02 16:53:58 -INFO - Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2026-05-02 16:53:58 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.ComplianceReporting.Repository.AuditTrailRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 16:53:58 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.ComplianceReporting.Repository.ComplianceRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 16:53:58 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.CustomerOnboarding.Repository.CustomerRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 16:53:58 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.KycVerification.Repository.KycDocumentRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 16:53:58 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.RiskAlert.Repository.RiskAlertRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 16:53:58 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.TransactionMonitoring.Repository.TransactionMonitoringRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 16:53:58 -INFO - Finished Spring Data repository scanning in 90 ms. Found 0 JDBC repository interfaces.
+2026-05-02 16:53:58 -INFO - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-05-02 16:53:58 -INFO - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-02 16:53:59 -INFO - Finished Spring Data repository scanning in 197 ms. Found 6 JPA repository interfaces.
+2026-05-02 16:54:00 -INFO - Tomcat initialized with port 8181 (http)
+2026-05-02 16:54:00 -INFO - Starting service [Tomcat]
+2026-05-02 16:54:00 -INFO - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-02 16:54:00 -INFO - Root WebApplicationContext: initialization completed in 2952 ms
+2026-05-02 16:54:00 -INFO - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-05-02 16:54:00 -INFO - HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-05-02 16:54:01 -INFO - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-02 16:54:01 -INFO - HikariPool-1 - Starting...
+2026-05-02 16:54:01 -INFO - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1db4e369
+2026-05-02 16:54:02 -INFO - HikariPool-1 - Start completed.
+2026-05-02 16:54:02 -INFO - HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/db]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.45
+	Default catalog/schema: db/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-02 16:54:03 -INFO - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-02 16:54:03 -INFO - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-02 16:54:03 -INFO - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-02 16:54:05 -INFO - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-02 16:54:05 -INFO - Tomcat started on port 8181 (http) with context path '/'
+2026-05-02 16:54:05 -INFO - Started FinGuardApplication in 9.099 seconds (process running for 10.003)
+2026-05-02 16:55:21 -INFO - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-02 16:55:21 -INFO - Initializing Servlet 'dispatcherServlet'
+2026-05-02 16:55:21 -INFO - Completed initialization in 1 ms
+2026-05-02 16:55:46 -INFO - Generating compliance reports...
+2026-05-02 16:55:46 -INFO - Report generated for customer 1
+2026-05-02 16:55:46 -INFO - Report generated for customer 3
+2026-05-02 16:56:55 -INFO - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-02 16:56:55 -INFO - Graceful shutdown complete
+2026-05-02 16:56:55 -INFO - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-02 16:56:55 -INFO - HikariPool-1 - Shutdown initiated...
+2026-05-02 16:56:55 -INFO - HikariPool-1 - Shutdown completed.
+2026-05-02 16:56:59 -INFO - Starting FinGuardApplication using Java 21 with PID 14004 (C:\Users\2492371\Downloads\Finguardv1\Finguard\FinGuard-main\FinGuard-master-main\FinGuard-master\target\classes started by 2492371 in C:\Users\2492371\Downloads\Finguardv1)
+2026-05-02 16:56:59 -INFO - No active profile set, falling back to 1 default profile: "default"
+2026-05-02 16:56:59 -INFO - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-05-02 16:56:59 -INFO - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-05-02 16:57:00 -INFO - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-05-02 16:57:00 -INFO - Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2026-05-02 16:57:00 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.ComplianceReporting.Repository.AuditTrailRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 16:57:00 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.ComplianceReporting.Repository.ComplianceRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 16:57:00 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.CustomerOnboarding.Repository.CustomerRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 16:57:00 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.KycVerification.Repository.KycDocumentRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 16:57:00 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.RiskAlert.Repository.RiskAlertRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 16:57:00 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.TransactionMonitoring.Repository.TransactionMonitoringRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 16:57:00 -INFO - Finished Spring Data repository scanning in 74 ms. Found 0 JDBC repository interfaces.
+2026-05-02 16:57:00 -INFO - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-05-02 16:57:00 -INFO - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-02 16:57:01 -INFO - Finished Spring Data repository scanning in 219 ms. Found 6 JPA repository interfaces.
+2026-05-02 16:57:01 -INFO - Tomcat initialized with port 8181 (http)
+2026-05-02 16:57:02 -INFO - Starting service [Tomcat]
+2026-05-02 16:57:02 -INFO - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-02 16:57:02 -INFO - Root WebApplicationContext: initialization completed in 2806 ms
+2026-05-02 16:57:02 -INFO - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-05-02 16:57:02 -INFO - HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-05-02 16:57:03 -INFO - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-02 16:57:03 -INFO - HikariPool-1 - Starting...
+2026-05-02 16:57:03 -INFO - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@e0410f1
+2026-05-02 16:57:03 -INFO - HikariPool-1 - Start completed.
+2026-05-02 16:57:03 -INFO - HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/db]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.45
+	Default catalog/schema: db/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-02 16:57:05 -INFO - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-02 16:57:05 -INFO - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-02 16:57:05 -INFO - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-02 16:57:06 -INFO - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-02 16:57:07 -INFO - Tomcat started on port 8181 (http) with context path '/'
+2026-05-02 16:57:07 -INFO - Started FinGuardApplication in 8.402 seconds (process running for 9.311)
+2026-05-02 17:05:40 -INFO - Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-02 17:05:40 -INFO - Graceful shutdown complete
+2026-05-02 17:05:40 -INFO - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-02 17:05:40 -INFO - HikariPool-1 - Shutdown initiated...
+2026-05-02 17:05:40 -INFO - HikariPool-1 - Shutdown completed.
+2026-05-02 17:08:23 -INFO - Starting FinGuardApplication using Java 21 with PID 9292 (C:\Users\2492371\Downloads\Finguardv1\Finguard\FinGuard-main\FinGuard-master-main\FinGuard-master\target\classes started by 2492371 in C:\Users\2492371\Downloads\Finguardv1)
+2026-05-02 17:08:23 -INFO - No active profile set, falling back to 1 default profile: "default"
+2026-05-02 17:08:23 -INFO - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-05-02 17:08:23 -INFO - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-05-02 17:08:24 -INFO - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-05-02 17:08:24 -INFO - Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+2026-05-02 17:08:24 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.ComplianceReporting.Repository.AuditTrailRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 17:08:24 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.ComplianceReporting.Repository.ComplianceRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 17:08:24 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.CustomerOnboarding.Repository.CustomerRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 17:08:24 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.KycVerification.Repository.KycDocumentRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 17:08:24 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.RiskAlert.Repository.RiskAlertRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 17:08:24 -INFO - Spring Data JDBC - Could not safely identify store assignment for repository candidate interface org.cts.adm.finguard.TransactionMonitoring.Repository.TransactionMonitoringRepository; If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+2026-05-02 17:08:24 -INFO - Finished Spring Data repository scanning in 69 ms. Found 0 JDBC repository interfaces.
+2026-05-02 17:08:24 -INFO - Multiple Spring Data modules found, entering strict repository configuration mode
+2026-05-02 17:08:24 -INFO - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-02 17:08:24 -INFO - Finished Spring Data repository scanning in 192 ms. Found 6 JPA repository interfaces.
+2026-05-02 17:08:25 -INFO - Tomcat initialized with port 8181 (http)
+2026-05-02 17:08:25 -INFO - Starting service [Tomcat]
+2026-05-02 17:08:25 -INFO - Starting Servlet engine: [Apache Tomcat/11.0.20]
+2026-05-02 17:08:25 -INFO - Root WebApplicationContext: initialization completed in 2851 ms
+2026-05-02 17:08:26 -INFO - HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-05-02 17:08:26 -INFO - HHH000001: Hibernate ORM core version 7.2.7.Final
+2026-05-02 17:08:27 -INFO - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-02 17:08:27 -INFO - HikariPool-1 - Starting...
+2026-05-02 17:08:27 -INFO - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@62801f1f
+2026-05-02 17:08:27 -INFO - HikariPool-1 - Start completed.
+2026-05-02 17:08:27 -INFO - HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/db]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.0.45
+	Default catalog/schema: db/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-02 17:08:29 -INFO - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-02 17:08:29 -INFO - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-02 17:08:29 -INFO - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-02 17:08:31 -INFO - Exposing 1 endpoint beneath base path '/actuator'
+2026-05-02 17:08:31 -INFO - Tomcat started on port 8181 (http) with context path '/'
+2026-05-02 17:08:31 -INFO - Started FinGuardApplication in 8.841 seconds (process running for 9.704)
