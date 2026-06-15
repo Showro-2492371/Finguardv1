@@ -1,0 +1,34 @@
+<div class="card">
+  <div class="hdr">
+    <h2 class="card-title">Session History</h2>
+    <button class="btn-clear" (click)="clear()">🗑️ Clear</button>
+  </div>
+  @if (history$ | async; as list) {
+    @if (list.length === 0) {
+      <div class="empty">📋 No transactions submitted yet in this session.</div>
+    } @else {
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Transaction ID</th><th>Amount (₹)</th><th>Channel</th>
+            <th>Type</th><th>Status</th><th>Risk Score</th><th>Timestamp</th>
+          </tr></thead>
+          <tbody>
+            @for (e of list; track e.transactionId) {
+              <tr>
+                <td class="mono">{{ e.transactionId }}</td>
+                <td>₹{{ e.amount | number:'1.2-2' }}</td>
+                <td>{{ e.channel }}</td>
+                <td>{{ e.transactionType }}</td>
+                <td><app-status-badge [status]="e.status" size="sm" /></td>
+                <td><b [style.color]="e.riskScore>=60?'#dc3545':e.riskScore>=30?'#b8860b':'#28a745'">{{ e.riskScore }}</b></td>
+                <td>{{ parseDate(e.createdAt) | date:'dd MMM yy, HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>
+

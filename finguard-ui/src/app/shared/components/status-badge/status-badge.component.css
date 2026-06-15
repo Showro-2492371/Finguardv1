@@ -1,0 +1,15 @@
+.badge {
+  display: inline-block;
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: .4px;
+  white-space: nowrap;
+}
+.badge.md { padding: 4px 12px; font-size: 12px; }
+.badge.sm { padding: 2px 8px;  font-size: 11px; }
+.badge.green  { background: #28a745; color: #fff; }
+.badge.amber  { background: #ffc107; color: #333; }
+.badge.red    { background: #dc3545; color: #fff; }
+.badge.orange { background: #fd7e14; color: #fff; }
+.badge.blue   { background: #3a7bd5; color: #fff; }
+

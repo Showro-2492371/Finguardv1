@@ -1,0 +1,68 @@
+@if (result) {
+  <div class="card">
+    <h2 class="card-title">Transaction Result</h2>
+
+    @if (!result.transactionId) {
+      <div class="banner info">🔍 Preview only — this transaction was NOT saved to the database.</div>
+    }
+
+    @if (result.fraudDetected) {
+      <div class="banner danger">⚠️ This transaction has been flagged/blocked. Review the reasons below.</div>
+    } @else {
+      <div class="banner success">✅ Transaction completed successfully. No fraud indicators detected.</div>
+    }
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="label">Status</span>
+        <app-status-badge [status]="result.status" />
+      </div>
+      <div class="meta-item">
+        <span class="label">Fraud Detected</span>
+        @if (result.fraudDetected) {
+          <span class="fraud-yes">⚠️ Yes</span>
+        } @else {
+          <span class="fraud-no">✅ No</span>
+        }
+      </div>
+      <div class="meta-item">
+        <span class="label">Customer ID</span>
+        <span>{{ result.customerId }}</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <span class="label">Transaction ID</span>
+      <span class="mono">{{ result.transactionId ?? '— (not saved)' }}</span>
+    </div>
+
+    <div class="section">
+      <span class="label">Risk Score</span>
+      <app-risk-progress-bar [score]="result.riskScore" />
+    </div>
+
+    <div class="section">
+      <span class="label">Risk Factors</span>
+      @if (fraudReasons.length === 0) {
+        <p class="muted">No fraud indicators detected.</p>
+      } @else {
+        <ul class="reasons">
+          @for (r of fraudReasons; track r) { <li>{{ r }}</li> }
+        </ul>
+      }
+    </div>
+
+    @if (parsedDate) {
+      <div class="section">
+        <span class="label">Created At</span>
+        <span>{{ parsedDate | date:'dd MMM yyyy, HH:mm:ss' }}</span>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="empty-card">
+    <div class="empty-icon">📊</div>
+    <p>Submit a transaction or run a fraud check to see results here.</p>
+  </div>
+}
+

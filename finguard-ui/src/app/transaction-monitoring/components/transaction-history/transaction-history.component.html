@@ -1,0 +1,54 @@
+<div class="history-card">
+  <div class="history-header">
+    <h2 class="card-title">Session Transaction History</h2>
+    <button class="btn-clear" (click)="clearHistory()">🗑️ Clear History</button>
+  </div>
+
+  @if (history$ | async; as history) {
+    @if (history.length === 0) {
+      <div class="empty-history">
+        <span>📋</span>
+        <p>No transactions yet in this session.</p>
+      </div>
+    } @else {
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Transaction ID</th>
+              <th>Amount (₹)</th>
+              <th>Channel</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Risk Score</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of history; track entry.transactionId) {
+              <tr>
+                <td class="mono">{{ entry.transactionId }}</td>
+                <td>₹{{ entry.amount | number:'1.2-2' }}</td>
+                <td>{{ entry.channel }}</td>
+                <td>{{ entry.transactionType }}</td>
+                <td>
+                  <span class="badge" [ngClass]="badgeClass(entry.status)">
+                    {{ entry.status }}
+                  </span>
+                </td>
+                <td>
+                  <span [style.color]="entry.riskScore >= 60 ? '#dc3545' : entry.riskScore >= 30 ? '#b8860b' : '#28a745'"
+                        style="font-weight:700">
+                    {{ entry.riskScore }}
+                  </span>
+                </td>
+                <td>{{ parseDate(entry.createdAt) | date:'dd MMM yy, HH:mm:ss' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>
+

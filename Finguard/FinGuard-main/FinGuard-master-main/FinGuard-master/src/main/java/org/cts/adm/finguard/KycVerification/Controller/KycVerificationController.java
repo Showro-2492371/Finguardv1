@@ -8,20 +8,24 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import org.cts.adm.finguard.CustomerOnboarding.Eunm.KycStatus;
 import org.cts.adm.finguard.CustomerOnboarding.Model.Customer;
-import org.cts.adm.finguard.CustomerOnboarding.Repository.CustomerRepository;
 import org.cts.adm.finguard.CustomerOnboarding.Service.CustomerLoginService;
+import org.cts.adm.finguard.Jwt.JwtUser;
+import org.cts.adm.finguard.KycVerification.Dto.KycAdminRecordDto;
+import org.cts.adm.finguard.KycVerification.Dto.KycStatusResponseDto;
 import org.cts.adm.finguard.KycVerification.Service.KycVerificationService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -32,9 +36,6 @@ public class KycVerificationController {
 
     private final KycVerificationService kycVerificationService;
     private final CustomerLoginService customerLoginService;
-
-    @Autowired
-    private CustomerRepository customerRepository;
 
     public KycVerificationController(KycVerificationService kycVerificationService,
                                      CustomerLoginService customerLoginService) {
@@ -54,23 +55,42 @@ public class KycVerificationController {
             @RequestParam MultipartFile file,
 
             @Parameter(description = "Customer ID", required = true)
-            @RequestParam Long customerId) throws Exception {
+            @RequestParam Long customerId,
+            Authentication authentication) throws Exception {
 
         logger.info("Received KYC upload request for customerId={}", customerId);
+        ensureOwnershipOrAdmin(authentication, customerId);
 
         Customer customer = customerLoginService.getCustomerById(customerId);
-
-        if (customer.getKycStatus() == KycStatus.NOT_STARTED) {
-            kycVerificationService.saveKycDocument(file, customerId);
-            customer.setKycStatus(KycStatus.IN_PROGRESS);
-            customerRepository.save(customer);
-            return ResponseEntity.ok("KYC document uploaded successfully");
+        if (customer == null) {
+            throw new RuntimeException("Customer not found");
         }
 
-        return ResponseEntity.ok("KYC already uploaded earlier");
+        if (customer.getKycStatus() == KycStatus.NOT_STARTED || customer.getKycStatus() == KycStatus.REJECTED) {
+            kycVerificationService.saveKycDocument(file, customerId);
+            return ResponseEntity.ok("KYC document uploaded successfully and sent for review");
+        }
+
+        if (customer.getKycStatus() == KycStatus.IN_PROGRESS) {
+            throw new RuntimeException("KYC document is already under review");
+        }
+
+        if (customer.getKycStatus() == KycStatus.VERIFIED) {
+            throw new RuntimeException("KYC is already verified");
+        }
+
+        throw new RuntimeException("KYC upload is not allowed for the current status");
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @GetMapping("/customer/kyc/status/{customerId}")
+    public ResponseEntity<KycStatusResponseDto> getStatus(@PathVariable Long customerId,
+                                                          Authentication authentication) {
+        ensureOwnershipOrAdmin(authentication, customerId);
+        return ResponseEntity.ok(kycVerificationService.getKycStatus(customerId));
+    }
+
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @Operation(summary = "Download KYC document")
     @ApiResponse(
             responseCode = "200",
@@ -83,7 +103,10 @@ public class KycVerificationController {
     @GetMapping("/customer/kyc/download/{customerId}")
     public ResponseEntity<byte[]> download(
             @Parameter(description = "Customer ID", required = true)
-            @PathVariable Long customerId) {
+            @PathVariable Long customerId,
+            Authentication authentication) {
+
+        ensureOwnershipOrAdmin(authentication, customerId);
 
         var doc = kycVerificationService.findKycDocumentByCustomerId(customerId);
 
@@ -104,13 +127,29 @@ public class KycVerificationController {
             @RequestParam MultipartFile file,
 
             @Parameter(description = "Customer ID", required = true)
-            @RequestParam Long customerId) throws Exception {
+            @RequestParam Long customerId,
+            Authentication authentication) throws Exception {
+
+        ensureOwnershipOrAdmin(authentication, customerId);
+        Customer customer = customerLoginService.getCustomerById(customerId);
+        if (customer == null) {
+            throw new RuntimeException("Customer not found");
+        }
+        if (customer.getKycStatus() != KycStatus.REJECTED) {
+            throw new RuntimeException("KYC document can only be updated when the current status is REJECTED");
+        }
 
         kycVerificationService.updateKycDocument(file, customerId);
-        return ResponseEntity.ok("KYC document updated successfully");
+        return ResponseEntity.ok("KYC document updated successfully and re-submitted for review");
     }
 
     // ADMIN only
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/kyc/records")
+    public ResponseEntity<List<KycAdminRecordDto>> getAllKycRecords() {
+        return ResponseEntity.ok(kycVerificationService.getAllKycRecords());
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update KYC status by Admin")
     @ApiResponse(responseCode = "200", description = "KYC status updated")
@@ -120,10 +159,15 @@ public class KycVerificationController {
             @RequestParam Long customerId,
 
             @Parameter(description = "New KYC status", required = true)
-            @RequestParam KycStatus status) {
+            @RequestParam String status) {
 
-        kycVerificationService.updateKycStatus(customerId, status);
-        return ResponseEntity.ok("KYC status updated to " + status);
+        try {
+            KycStatus kycStatus = KycStatus.valueOf(status.toUpperCase());
+            kycVerificationService.updateKycStatus(customerId, kycStatus);
+            return ResponseEntity.ok("KYC status updated to " + kycStatus);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid status: " + status);
+        }
     }
 
     // USER & ADMIN
@@ -133,9 +177,27 @@ public class KycVerificationController {
     @DeleteMapping("/customer/kyc/delete/{customerId}")
     public ResponseEntity<String> delete(
             @Parameter(description = "Customer ID", required = true)
-            @PathVariable Long customerId) {
+            @PathVariable Long customerId,
+            Authentication authentication) {
 
-        kycVerificationService.deleteKycDocument(customerId);
+        ensureOwnershipOrAdmin(authentication, customerId);
+        kycVerificationService.deleteKycDocument(customerId, isAdmin(authentication));
         return ResponseEntity.ok("KYC document deleted successfully");
+    }
+
+    private void ensureOwnershipOrAdmin(Authentication authentication, Long customerId) {
+        if (isAdmin(authentication)) {
+            return;
+        }
+
+        Object principal = authentication != null ? authentication.getPrincipal() : null;
+        if (!(principal instanceof JwtUser jwtUser) || !customerId.equals(jwtUser.getCustomerId())) {
+            throw new RuntimeException("You are not authorized to access this KYC document");
+        }
+    }
+
+    private boolean isAdmin(Authentication authentication) {
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
     }
 }

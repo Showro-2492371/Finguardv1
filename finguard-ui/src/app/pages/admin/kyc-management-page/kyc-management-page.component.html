@@ -1,0 +1,119 @@
+<app-navbar role="admin" />
+<div class="page">
+  <div class="page-title">
+    <h1>KYC Management</h1>
+    <p>Update KYC statuses and download customer documents.</p>
+  </div>
+
+  @if (successMsg()) { <app-alert-banner type="success" [message]="successMsg()" (dismissed)="successMsg.set('')" /> }
+  @if (errorMsg())   { <app-alert-banner type="error"   [message]="errorMsg()"   (dismissed)="errorMsg.set('')" /> }
+
+  <div class="sections-grid">
+    <!-- Section 1: Update KYC Status -->
+    <div class="card">
+      <h3>✅ Update KYC Status</h3>
+      <p class="hint">Update the KYC status for a specific customer.</p>
+
+      <div class="field">
+        <label>Customer ID</label>
+        <input type="number" [ngModel]="updateCustomerId()" (ngModelChange)="updateCustomerId.set($event)" placeholder="Enter customer ID" />
+      </div>
+
+      <div class="field">
+        <label>New KYC Status</label>
+        <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
+          @for (s of statuses; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </div>
+
+      <button class="btn-primary" (click)="updateStatus()" [disabled]="loading()">
+        @if (loading()) { <span class="spin"></span> } ✅ Update KYC Status
+      </button>
+    </div>
+
+    <!-- Section 2: Update Account Status -->
+    <div class="card">
+      <h3>Update Account Status</h3>
+      <p class="hint">Activate, suspend, or close user accounts.</p>
+
+      <div class="field">
+        <label>Customer ID</label>
+        <input type="number" [ngModel]="updateCustomerId()" (ngModelChange)="updateCustomerId.set($event)" placeholder="Enter customer ID" />
+      </div>
+
+      <div class="field">
+        <label>New Account Status</label>
+        <select [ngModel]="selectedAccountStatus()" (ngModelChange)="selectedAccountStatus.set($event)">
+          @for (s of accountStatuses; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </div>
+
+      <button class="btn-primary" (click)="updateAccountStatus()" [disabled]="loading()">
+        @if (loading()) { <span class="spin"></span> } Update Account Status
+      </button>
+    </div>
+
+    <!-- Section 3: Download Document -->
+    <div class="card">
+      <h3>⬇️ Download Customer Document</h3>
+      <p class="hint">Download a customer's KYC document for manual review.</p>
+
+      <div class="field">
+        <label>Customer ID</label>
+        <input type="number" [ngModel]="downloadCustomerId()" (ngModelChange)="downloadCustomerId.set($event)" placeholder="Enter customer ID" />
+      </div>
+
+      <button class="btn-secondary" (click)="downloadDoc()">⬇️ Download Document</button>
+    </div>
+  </div>
+
+  <div class="card records-card">
+    <div class="records-header">
+      <h3>📋 All KYC Records</h3>
+      <button class="btn-secondary" (click)="loadAllKycRecords()" [disabled]="recordsLoading()">
+        @if (recordsLoading()) { <span class="spin spin-dark"></span> } Refresh
+      </button>
+    </div>
+
+    @if (recordsLoading()) {
+      <p class="hint">Loading KYC records...</p>
+    } @else if (allKycRecords().length === 0) {
+      <p class="hint">No KYC records found in the database.</p>
+    } @else {
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Customer ID</th>
+              <th>Name</th>
+              <th>Contact</th>
+              <th>Status</th>
+              <th>Account</th>
+              <th>Document</th>
+              <th>Type</th>
+              <th>Uploaded At</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of allKycRecords(); track r.documentId) {
+              <tr>
+                <td>{{ r.customerId }}</td>
+                <td>{{ r.customerName }}</td>
+                <td>{{ r.contactInfo }}</td>
+                <td>{{ r.kycStatus }}</td>
+                <td>{{ r.accountStatus }}</td>
+                <td>{{ r.documentName }}</td>
+                <td>{{ r.documentType }}</td>
+                <td>{{ parseDate(r.uploadedAt) | date:'dd MMM yy, HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

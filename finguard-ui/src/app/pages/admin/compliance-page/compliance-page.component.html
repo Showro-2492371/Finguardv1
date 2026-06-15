@@ -1,0 +1,193 @@
+<app-navbar role="admin" />
+<div class="page">
+  <div class="page-title">
+    <h1>Compliance Reports</h1>
+    <p>Generate, view, filter and export AML compliance reports.</p>
+  </div>
+
+  @if (successMsg()) { <app-alert-banner type="success" [message]="successMsg()" (dismissed)="successMsg.set('')" /> }
+  @if (errorMsg())   { <app-alert-banner type="error"   [message]="errorMsg()"   (dismissed)="errorMsg.set('')" /> }
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button [class.active]="activeTab()==='all'"      (click)="switchTab('all')">📋 All Reports</button>
+    <button [class.active]="activeTab()==='generate'" (click)="switchTab('generate')">🔄 Generate</button>
+    <button [class.active]="activeTab()==='filter'"   (click)="switchTab('filter')">🔍 Filter</button>
+    <button [class.active]="activeTab()==='audit'"    (click)="switchTab('audit')">📝 Audit Logs</button>
+  </div>
+
+  @if (loading()) { <div class="center"><app-loading-spinner /></div> }
+
+  <!-- TAB: All Reports -->
+  @if (activeTab() === 'all' && !loading()) {
+    @if (allReports().length === 0) {
+      <div class="empty">No reports found. Click "Generate" tab to create reports.</div>
+    } @else {
+      <div class="card"><div class="tbl-wrap"><table>
+        <thead><tr>
+          <th>Report ID</th><th>Customer ID</th><th>Fraud Cases</th>
+          <th>Risk Score</th><th>Generated Date</th><th>Actions</th>
+        </tr></thead>
+        <tbody>
+          @for (r of allReports(); track r.reportId) {
+            <tr>
+              <td>{{ r.reportId }}</td><td>{{ r.customerId }}</td>
+              <td>{{ r.fraudCases }}</td><td>{{ r.riskScore | number:'1.0-2' }}</td>
+              <td>{{ parseDate(r.generatedDate) | date:'dd MMM yy, HH:mm' }}</td>
+              <td class="action-cell">
+                <button class="btn-sm" (click)="exportCsv(r.customerId)" [disabled]="csvLoading()">
+                  @if (csvLoading()) { ⏳ } @else { 📥 } Export CSV
+                </button>
+                <button class="btn-sm danger" (click)="askDelete(r.customerId)">🗑️ Delete</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table></div></div>
+    }
+
+    @if (csvLoading()) {
+      <div class="csv-loading"><app-loading-spinner size="sm" /> Generating CSV preview...</div>
+    }
+
+    @if (csvPreview(); as preview) {
+      <div class="csv-preview-panel">
+        <div class="csv-preview-header">
+          <div class="csv-title-group">
+            <h3>CSV Preview — Customer {{ preview.customerId }}</h3>
+            <span class="csv-filepath">Server file: <code>{{ preview.filePath }}</code></span>
+          </div>
+          <div class="csv-header-actions">
+            <button class="btn-download" (click)="downloadCsvLocally(preview)">⬇ Download .csv</button>
+            <button class="btn-close-csv" (click)="closeCsvPreview()">✕ Close</button>
+          </div>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="csv-table">
+            <thead><tr>
+              <th>ReportId</th><th>CustomerId</th><th>FraudCases</th>
+              <th>RiskScore</th><th>GeneratedDate</th>
+            </tr></thead>
+            <tbody>
+              @for (row of preview.rows; track row.reportId) {
+                <tr>
+                  <td>{{ row.reportId }}</td>
+                  <td>{{ row.customerId }}</td>
+                  <td>{{ row.fraudCases }}</td>
+                  <td>{{ row.riskScore | number:'1.0-2' }}</td>
+                  <td>{{ parseDate(row.generatedDate) | date:'dd MMM yyyy, HH:mm:ss' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="csv-raw-section">
+          <div class="csv-raw-title">Raw CSV Content</div>
+          <pre class="csv-raw">{{ preview.rawCsv }}</pre>
+        </div>
+      </div>
+    }
+  }
+
+  <!-- TAB: Generate -->
+  @if (activeTab() === 'generate' && !loading()) {
+    <div class="gen-grid">
+      <div class="card">
+        <h3>Generate All Reports</h3>
+        <p class="hint">Generate compliance reports for all customers with risk alerts.</p>
+        <button class="btn-primary" (click)="generateAll()" [disabled]="loading()">🔄 Generate All Reports</button>
+        @if (genAllResult().length > 0) {
+          <div class="tbl-wrap"><table>
+            <thead><tr><th>Report ID</th><th>Customer ID</th><th>Fraud Cases</th><th>Risk Score</th><th>Date</th></tr></thead>
+            <tbody>
+              @for (r of genAllResult(); track r.reportId) {
+                <tr><td>{{ r.reportId }}</td><td>{{ r.customerId }}</td><td>{{ r.fraudCases }}</td>
+                  <td>{{ r.riskScore | number:'1.0-2' }}</td>
+                  <td>{{ parseDate(r.generatedDate) | date:'dd MMM yy' }}</td></tr>
+              }
+            </tbody>
+          </table></div>
+        }
+      </div>
+
+      <div class="card">
+        <h3>Generate for Customer</h3>
+        <div class="field">
+          <label>Customer ID</label>
+          <input type="number" [ngModel]="genCustomerId()" (ngModelChange)="genCustomerId.set($event)" placeholder="Enter customer ID" />
+        </div>
+        <button class="btn-primary" (click)="generateSingle()" [disabled]="loading()">📊 Generate Report</button>
+        @if (genSingleResult(); as r) {
+          <div class="result-box">
+            <p><b>Report ID:</b> {{ r.reportId }}</p>
+            <p><b>Customer ID:</b> {{ r.customerId }}</p>
+            <p><b>Fraud Cases:</b> {{ r.fraudCases }}</p>
+            <p><b>Risk Score:</b> {{ r.riskScore | number:'1.0-2' }}</p>
+            <p><b>Date:</b> {{ parseDate(r.generatedDate) | date:'dd MMM yyyy, HH:mm' }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- TAB: Filter -->
+  @if (activeTab() === 'filter' && !loading()) {
+    <div class="card">
+      <h3>Filter Reports</h3>
+      <div class="filter-grid">
+        <div class="field"><label>Start Date</label>
+          <input type="date" [ngModel]="filterStart()" (ngModelChange)="filterStart.set($event)" /></div>
+        <div class="field"><label>End Date</label>
+          <input type="date" [ngModel]="filterEnd()" (ngModelChange)="filterEnd.set($event)" /></div>
+        <div class="field"><label>Month (1–12)</label>
+          <input type="number" min="1" max="12" [ngModel]="filterMonth()" (ngModelChange)="filterMonth.set($event)" placeholder="Month" /></div>
+        <div class="field"><label>Year</label>
+          <input type="number" [ngModel]="filterYear()" (ngModelChange)="filterYear.set($event)" placeholder="e.g. 2026" /></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" (click)="runFilter()">🔍 Filter</button>
+        <button class="btn-secondary" (click)="clearFilter()">✖ Clear</button>
+      </div>
+      @if (filterResult().length > 0) {
+        <div class="tbl-wrap mt"><table>
+          <thead><tr><th>Report ID</th><th>Customer ID</th><th>Fraud Cases</th><th>Risk Score</th><th>Generated Date</th></tr></thead>
+          <tbody>
+            @for (r of filterResult(); track r.reportId) {
+              <tr><td>{{ r.reportId }}</td><td>{{ r.customerId }}</td><td>{{ r.fraudCases }}</td>
+                <td>{{ r.riskScore | number:'1.0-2' }}</td>
+                <td>{{ parseDate(r.generatedDate) | date:'dd MMM yy, HH:mm' }}</td></tr>
+            }
+          </tbody>
+        </table></div>
+      }
+    </div>
+  }
+
+  <!-- TAB: Audit -->
+  @if (activeTab() === 'audit' && !loading()) {
+    @if (auditLogs().length === 0) {
+      <div class="empty">No audit logs found.</div>
+    } @else {
+      <div class="card"><div class="tbl-wrap"><table>
+        <thead><tr><th>ID</th><th>Action</th><th>Performed By</th><th>Timestamp</th></tr></thead>
+        <tbody>
+          @for (a of auditLogs(); track a.id) {
+            <tr><td>{{ a.id }}</td><td>{{ a.action }}</td><td>{{ a.performedBy }}</td>
+              <td>{{ parseDate(a.timestamp) | date:'dd MMM yyyy, HH:mm:ss' }}</td></tr>
+          }
+        </tbody>
+      </table></div></div>
+    }
+  }
+</div>
+
+@if (deleteTarget()) {
+  <app-confirm-dialog
+    message="Delete all compliance reports for customer {{ deleteTarget() }}? This cannot be undone."
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()" />
+}
+
+

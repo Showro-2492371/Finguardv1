@@ -1,0 +1,97 @@
+@if (result) {
+  <div class="result-card">
+    <h2 class="card-title">Transaction Result</h2>
+
+    <!-- Preview banner when no transactionId (detectFraud only) -->
+    @if (!result.transactionId) {
+      <div class="alert-info">🔍 Preview only — this transaction was NOT saved to the database.</div>
+    }
+
+    <!-- Success / Fraud alert -->
+    @if (result.fraudDetected) {
+      <div class="alert-danger">
+        ⚠️ This transaction has been flagged/blocked. Review the reasons below.
+      </div>
+    } @else {
+      <div class="alert-success">
+        ✅ Transaction completed successfully. No fraud indicators detected.
+      </div>
+    }
+
+    <!-- Status + ID row -->
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">Status</span>
+        <span class="badge" [ngClass]="badgeClass">{{ result.status }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Transaction ID</span>
+        <span class="mono">{{ result.transactionId ?? '—' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Customer ID</span>
+        <span>{{ result.customerId }}</span>
+      </div>
+    </div>
+
+    <!-- Risk Score -->
+    <div class="section">
+      <div class="risk-header">
+        <span class="meta-label">Risk Score</span>
+        <span class="risk-number" [style.color]="barColor">
+          {{ result.riskScore }} / {{ result.riskScore > 100 ? result.riskScore : '100' }}
+        </span>
+      </div>
+      <div class="progress-track">
+        <div
+          class="progress-bar"
+          [style.width.%]="progressWidth"
+          [style.background]="barColor"
+        ></div>
+      </div>
+      <div class="risk-labels">
+        <span style="color:#28a745">Safe (0–29)</span>
+        <span style="color:#ffc107">Flagged (30–59)</span>
+        <span style="color:#dc3545">Blocked (60+)</span>
+      </div>
+    </div>
+
+    <!-- Fraud Detected -->
+    <div class="section">
+      <span class="meta-label">Fraud Detected</span>
+      @if (result.fraudDetected) {
+        <span class="fraud-yes">⚠️ Yes</span>
+      } @else {
+        <span class="fraud-no">✅ No</span>
+      }
+    </div>
+
+    <!-- Fraud Reasons -->
+    <div class="section">
+      <span class="meta-label">Risk Factors</span>
+      @if (fraudReasons.length === 0 || fraudReasons[0] === 'No fraud indicators detected') {
+        <p class="no-reasons">No fraud indicators detected.</p>
+      } @else {
+        <ul class="reasons-list">
+          @for (reason of fraudReasons; track reason) {
+            <li>{{ reason }}</li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- Timestamp -->
+    @if (parsedDate) {
+      <div class="section">
+        <span class="meta-label">Created At</span>
+        <span>{{ parsedDate | date:'dd MMM yyyy, HH:mm:ss' }}</span>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="empty-state">
+    <div class="empty-icon">📊</div>
+    <p>Submit a transaction or run a fraud check to see results here.</p>
+  </div>
+}
+

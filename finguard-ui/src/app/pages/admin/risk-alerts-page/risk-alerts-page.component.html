@@ -1,0 +1,69 @@
+<app-navbar role="admin" />
+<div class="page">
+  <div class="page-title">
+    <h1>Risk Alerts</h1>
+    <p>Monitor and review fraud risk alerts from transactions.</p>
+  </div>
+
+  @if (errorMsg()) {
+    <app-alert-banner type="error" [message]="errorMsg()" (dismissed)="errorMsg.set('')" />
+  }
+
+  <div class="filter-bar">
+    <label>Filter by Status:</label>
+    <select [(ngModel)]="statusFilter" (change)="onStatusChange()">
+      @for (s of statuses; track s) {
+        <option [value]="s">{{ s || 'All Statuses' }}</option>
+      }
+    </select>
+  </div>
+
+  @if (loading()) {
+    <div class="center"><app-loading-spinner /></div>
+  } @else {
+    <p class="count">Showing {{ alerts().length }} alert(s)</p>
+
+    @if (alerts().length === 0) {
+      <div class="empty">No alerts found for the selected filter.</div>
+    } @else {
+      <div class="card">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Alert ID</th><th>Transaction ID</th><th>Risk Score</th>
+              <th>Risk Level</th><th>Status</th><th>Alert Date</th><th>Actions</th>
+            </tr></thead>
+            <tbody>
+              @for (a of alerts(); track a.alertId) {
+                <tr>
+                  <td>{{ a.alertId }}</td>
+                  <td class="mono">{{ a.transactionId.slice(0,30) }}{{ a.transactionId.length > 30 ? '...' : '' }}</td>
+                  <td><app-risk-progress-bar [score]="a.riskScore" /></td>
+                  <td><app-status-badge [status]="a.riskLevel" size="sm" /></td>
+                  <td><app-status-badge [status]="a.status" size="sm" /></td>
+                  <td>{{ parseDate(a.alertDate) | date:'dd MMM yy, HH:mm' }}</td>
+                  <td><button class="btn-sm" (click)="toggleExpand(a.alertId)">👁 {{ expandedId() === a.alertId ? 'Hide' : 'Details' }}</button></td>
+                </tr>
+                @if (expandedId() === a.alertId) {
+                  <tr class="expand-row">
+                    <td colspan="7">
+                      <div class="expand-box">
+                        <p><b>Full Transaction ID:</b> <span class="mono">{{ a.transactionId }}</span></p>
+                        <p><b>Exact Risk Score:</b> {{ a.riskScore }}</p>
+                        <p><b>Risk Level:</b> <app-status-badge [status]="a.riskLevel" size="sm" /></p>
+                        <p><b>Status:</b> <app-status-badge [status]="a.status" size="sm" /></p>
+                        <p><b>Date:</b> {{ parseDate(a.alertDate) | date:'dd MMM yyyy, HH:mm:ss' }}</p>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  }
+</div>
+
+

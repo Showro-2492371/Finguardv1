@@ -1,0 +1,77 @@
+<app-navbar role="admin" />
+<div class="page">
+  <div class="page-title">
+    <h1>Admin Dashboard 🛡️</h1>
+    <p>Overview of the FinGuard system health and alerts.</p>
+  </div>
+
+  @if (errorMsg()) {
+    <app-alert-banner type="error" [message]="errorMsg()" (dismissed)="errorMsg.set('')" />
+  }
+  @if (genSuccess()) {
+    <app-alert-banner type="success" [message]="genSuccess()" (dismissed)="genSuccess.set('')" />
+  }
+
+  @if (loading()) {
+    <div class="center"><app-loading-spinner size="lg" /></div>
+  } @else {
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="sum-card blue">
+        <div class="sum-icon">👥</div>
+        <div class="sum-val">{{ countCustomers() }}</div>
+        <div class="sum-label">Total Customers Reported</div>
+      </div>
+      <div class="sum-card red">
+        <div class="sum-icon">🚨</div>
+        <div class="sum-val">{{ countFraud() }}</div>
+        <div class="sum-label">Total Fraud Cases</div>
+      </div>
+      <div class="sum-card orange">
+        <div class="sum-icon">📊</div>
+        <div class="sum-val">{{ countRisk() }}</div>
+        <div class="sum-label">Total Risk Score</div>
+      </div>
+    </div>
+
+    <!-- Recent Alerts -->
+    <div class="card mt">
+      <div class="card-hdr">
+        <h2>Recent Risk Alerts</h2>
+        <a routerLink="/admin/risk-alerts" class="view-all">View All →</a>
+      </div>
+      @if (recentAlerts().length === 0) {
+        <p class="empty-text">No risk alerts found.</p>
+      } @else {
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Alert ID</th><th>Transaction ID</th><th>Risk Level</th><th>Status</th><th>Date</th>
+            </tr></thead>
+            <tbody>
+              @for (a of recentAlerts(); track a.alertId) {
+                <tr>
+                  <td>{{ a.alertId }}</td>
+                  <td class="mono">{{ a.transactionId.slice(0,30) }}...</td>
+                  <td><app-status-badge [status]="a.riskLevel" size="sm" /></td>
+                  <td><app-status-badge [status]="a.status" size="sm" /></td>
+                  <td>{{ parseDate(a.alertDate) | date:'dd MMM yy, HH:mm' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions mt">
+      <button class="btn-primary" (click)="generateAll()" [disabled]="genLoading()">
+        @if (genLoading()) { <span class="spin"></span> } 🔄 Generate All Reports
+      </button>
+      <a routerLink="/admin/compliance" class="btn-secondary">📋 View Compliance Reports</a>
+      <a routerLink="/admin/kyc-management" class="btn-secondary">🔍 KYC Management</a>
+    </div>
+  }
+</div>
+

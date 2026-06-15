@@ -1,0 +1,31 @@
+.page{padding:28px;max-width:1000px;margin:0 auto;}
+.page-title{margin-bottom:20px;}
+.page-title h1{font-size:26px;font-weight:700;color:var(--color-navy);margin:0 0 4px;}
+.page-title p{color:var(--color-text-muted);font-size:14px;margin:0;}
+.status-card{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:24px;margin-bottom:24px;display:flex;gap:20px;align-items:flex-start;}
+.status-icon{font-size:40px;}
+.status-card h3{font-size:17px;font-weight:700;margin:0 0 6px;}
+.status-card p{color:var(--color-text-muted);font-size:14px;margin:0;}
+.status-title.not-started{color:var(--color-primary);}
+.status-title.in-progress{color:#fd7e14;}
+.status-title.verified{color:var(--color-success);}
+.status-title.rejected{color:var(--color-danger);}
+.doc-meta{margin-top:8px !important;font-size:13px !important;color:#495057 !important;}
+.sections-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+.card{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:24px;display:flex;flex-direction:column;gap:12px;}
+.card h3{font-size:16px;font-weight:700;color:var(--color-navy);margin:0;}
+.hint{color:var(--color-text-muted);font-size:13px;margin:0;}
+.file-name{font-size:13px;color:var(--color-primary);margin:0;}
+input[type="file"]{font-size:13px;}
+.btn-primary,.btn-secondary,.btn-danger{padding:11px 20px;border-radius:6px;font-size:14px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s;}
+.btn-primary{background:var(--color-primary);color:#fff;}
+.btn-primary:hover:not(:disabled){background:#2f67ba;}
+.btn-secondary{background:#f0f4fb;color:var(--color-primary);border:1.5px solid var(--color-primary);}
+.btn-danger{background:var(--color-danger);color:#fff;}
+.btn-danger:hover:not(:disabled){background:#c82333;}
+.btn-primary:disabled,.btn-secondary:disabled,.btn-danger:disabled{opacity:.6;cursor:not-allowed;}
+.danger-card{border:1.5px solid #fce8e8;}
+.spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+

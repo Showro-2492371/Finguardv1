@@ -1,0 +1,23 @@
+.card { background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:24px;height:100%;box-sizing:border-box; }
+.card-title { font-size:20px;font-weight:700;color:var(--color-navy);margin:0 0 20px;padding-bottom:12px;border-bottom:2px solid #f0f2f5; }
+.field { margin-bottom:16px;display:flex;flex-direction:column;gap:6px; }
+label { font-size:13px;font-weight:600;color:#444; }
+input[type="number"],select { padding:11px 13px;border:1.5px solid var(--color-border);border-radius:6px;font-size:14px;outline:none;width:100%;box-sizing:border-box;background:#fff; }
+input:focus,select:focus { border-color:var(--color-primary);box-shadow:0 0 0 3px rgba(58,123,213,.12); }
+.radio-row { display:flex;gap:20px; }
+.radio-label { display:flex;align-items:center;gap:6px;font-size:14px;font-weight:400;cursor:pointer; }
+.err { color:var(--color-danger);font-size:12px; }
+.btn-row { display:flex;gap:12px;margin-top:8px;flex-wrap:wrap; }
+.btn-primary,.btn-secondary { padding:12px 20px;border-radius:6px;font-size:14px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s;flex:1;justify-content:center; }
+.btn-primary { background:var(--color-primary);color:#fff; }
+.btn-primary:hover:not(:disabled) { background:#2f67ba; }
+.btn-secondary { background:#f0f4fb;color:var(--color-primary);border:1.5px solid var(--color-primary); }
+.btn-secondary:hover:not(:disabled) { background:#ddeafc; }
+.btn-primary:disabled,.btn-secondary:disabled { opacity:.6;cursor:not-allowed; }
+.spin { width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
+@keyframes spin { to{transform:rotate(360deg);} }
+.info-panel { margin-top:20px;border-top:1px solid #f0f2f5;padding-top:14px; }
+.info-panel summary { font-size:13px;color:var(--color-primary);cursor:pointer;font-weight:600; }
+.info-panel ul { margin:10px 0 0 16px;font-size:13px;color:#555;line-height:1.9; }
+.info-panel p { font-size:12px;color:#777;margin-top:8px; }
+

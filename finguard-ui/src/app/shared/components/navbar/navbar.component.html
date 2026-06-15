@@ -1,0 +1,28 @@
+<nav class="navbar">
+  <div class="nav-brand">
+    <a routerLink="/">🛡️ FinGuard</a>
+  </div>
+
+  <button class="hamburger" (click)="toggleMenu()" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="nav-links" [class.open]="menuOpen()">
+    @if (role === 'user') {
+      <a routerLink="/user/dashboard"    routerLinkActive="active" (click)="menuOpen.set(false)">Dashboard</a>
+      <a routerLink="/user/transactions" routerLinkActive="active" (click)="menuOpen.set(false)">My Transactions</a>
+      <a routerLink="/user/kyc"          routerLinkActive="active" (click)="menuOpen.set(false)">KYC Verification</a>
+    } @else {
+      <a routerLink="/admin/dashboard"      routerLinkActive="active" (click)="menuOpen.set(false)">Dashboard</a>
+      <a routerLink="/admin/risk-alerts"    routerLinkActive="active" (click)="menuOpen.set(false)">Risk Alerts</a>
+      <a routerLink="/admin/compliance"     routerLinkActive="active" (click)="menuOpen.set(false)">Compliance</a>
+      <a routerLink="/admin/kyc-management" routerLinkActive="active" (click)="menuOpen.set(false)">KYC Management</a>
+    }
+  </div>
+
+  <div class="nav-right" [class.open]="menuOpen()">
+    <span class="nav-user">👤 {{ auth.getUsername() }}</span>
+    <button class="btn-logout" (click)="logout()">Logout</button>
+  </div>
+</nav>
+

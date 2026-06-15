@@ -7,9 +7,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.List;
+import java.util.Collection;
 
 @Repository
 public interface RiskAlertRepository extends JpaRepository<RiskAlert, Long> {
     Optional<RiskAlert> findByTransactionId(String transactionId);
     List<RiskAlert> findByStatus(RiskAlertStatus status);
+    List<RiskAlert> findByStatusIn(Collection<RiskAlertStatus> statuses);
 }

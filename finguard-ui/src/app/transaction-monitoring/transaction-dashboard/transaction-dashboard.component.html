@@ -1,0 +1,32 @@
+<div class="dashboard-shell">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-brand">🛡️ FinGuard</div>
+    <div class="nav-right">
+      <span class="nav-user">👤 {{ username }}</span>
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <div class="page-title">
+      <h1>Transaction Monitoring</h1>
+      <p>Submit transactions and monitor fraud risk in real time.</p>
+    </div>
+
+    <!-- Two-column layout -->
+    <div class="two-col">
+      <div class="col-form">
+        <app-transaction-form (transactionResult)="onTransactionResult($event)" />
+      </div>
+      <div class="col-result">
+        <app-fraud-result [result]="latestResult()" />
+      </div>
+    </div>
+
+    <!-- Full-width history -->
+    <app-transaction-history />
+  </main>
+</div>
+

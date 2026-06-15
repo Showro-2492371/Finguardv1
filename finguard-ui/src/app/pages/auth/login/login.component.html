@@ -1,0 +1,59 @@
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo">🛡️</div>
+      <h1>FinGuard</h1>
+      <p>@if (portal() === 'admin') { Admin Sign In } @else { User Sign In }</p>
+    </div>
+
+    @if (registered()) {
+      <app-alert-banner type="success" message="Account created successfully! Please log in."
+        (dismissed)="registered.set(false)" />
+    }
+    @if (errorMsg()) {
+      <app-alert-banner type="error" [message]="errorMsg()" (dismissed)="errorMsg.set('')" />
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" formControlName="name" placeholder="Enter your name" autocomplete="username" />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) {
+          <span class="err">Username is required</span>
+        }
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <div class="pass-wrap">
+          <input [type]="showPass() ? 'text' : 'password'" formControlName="password"
+            placeholder="Enter your password" autocomplete="current-password" />
+          <button type="button" class="eye" (click)="showPass.update(v=>!v)">
+            {{ showPass() ? '🙈' : '👁️' }}
+          </button>
+        </div>
+        @if (form.get('password')?.invalid && form.get('password')?.touched) {
+          <span class="err">Password is required</span>
+        }
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading()">
+        @if (loading()) { <span class="spin"></span> Signing in... } @else { Sign In }
+      </button>
+    </form>
+
+    <p class="footer-link">
+      Don't have an account?
+      <a [routerLink]="portal() === 'admin' ? '/admin/signup' : '/user/signup'">Sign Up</a>
+    </p>
+    <p class="footer-link alt-link">
+      @if (portal() === 'admin') {
+        Not an admin? <a routerLink="/user/login">Go to User Login</a>
+      } @else {
+        Are you admin? <a routerLink="/admin/login">Go to Admin Login</a>
+      }
+    </p>
+  </div>
+</div>
+
+

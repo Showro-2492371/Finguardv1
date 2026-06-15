@@ -32,12 +32,3 @@ build/
 ### VS Code ###
 .vscode/
 
-# Logs
-*.log
-
-# Reports
-*.csv
-
-# Folders if needed
-logs/
-reports/

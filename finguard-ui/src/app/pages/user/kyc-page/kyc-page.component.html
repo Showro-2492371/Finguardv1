@@ -1,0 +1,117 @@
+<app-navbar role="user" />
+<div class="page">
+  <div class="page-title">
+    <h1>KYC Verification</h1>
+    <p>Upload and manage your Know Your Customer document.</p>
+  </div>
+
+  @if (successMsg()) {
+    <app-alert-banner type="success" [message]="successMsg()" (dismissed)="successMsg.set('')" />
+  }
+  @if (errorMsg()) {
+    <app-alert-banner type="error" [message]="errorMsg()" (dismissed)="errorMsg.set('')" />
+  }
+
+  <!-- Status Card -->
+  <div class="status-card">
+    <div class="status-icon">
+      @switch (currentStatus) {
+        @case ('VERIFIED') { ✅ }
+        @case ('REJECTED') { ❌ }
+        @case ('IN_PROGRESS') { 📄 }
+        @default { 📭 }
+      }
+    </div>
+    <div>
+      <h3 class="status-title" [class.not-started]="currentStatus === 'NOT_STARTED'"
+          [class.in-progress]="currentStatus === 'IN_PROGRESS'"
+          [class.verified]="currentStatus === 'VERIFIED'"
+          [class.rejected]="currentStatus === 'REJECTED'">
+        {{ currentStatus }}
+      </h3>
+      @switch (currentStatus) {
+        @case ('NOT_STARTED') {
+          <p>Please upload a valid government-issued ID or document to begin KYC verification.</p>
+        }
+        @case ('IN_PROGRESS') {
+          <p>Your KYC document is under admin review.</p>
+        }
+        @case ('VERIFIED') {
+          <p>Your KYC is verified. High-value transactions are now allowed.</p>
+        }
+        @case ('REJECTED') {
+          <p>Your KYC was rejected. Please upload a new document to restart the review process.</p>
+        }
+      }
+      @if (status()?.documentName) {
+        <p class="doc-meta"><b>Document:</b> {{ status()?.documentName }}</p>
+      }
+      @if (uploadedAt) {
+        <p class="doc-meta"><b>Uploaded At:</b> {{ uploadedAt | date:'dd MMM yyyy, HH:mm:ss' }}</p>
+      }
+    </div>
+  </div>
+
+  <div class="sections-grid">
+    <!-- Upload (only when no document) -->
+    @if (canUpload) {
+      <div class="card">
+        <h3>@if (currentStatus === 'REJECTED') { 🔁 Re-upload KYC Document } @else { 📤 Upload KYC Document }</h3>
+        <p class="hint">Accepted formats: PDF, JPG, PNG. Maximum size: 5 MB.</p>
+        <input type="file" accept="image/*,application/pdf" (change)="onUploadFileChange($event)" />
+        @if (selectedUploadFile()) {
+          <p class="file-name">📎 {{ selectedUploadFile()!.name }}</p>
+        }
+        <button class="btn-primary" (click)="upload()" [disabled]="loading() || !selectedUploadFile()">
+          @if (loading()) { <span class="spin"></span> } Upload Document
+        </button>
+      </div>
+    }
+
+    <!-- Update (only when document exists) -->
+    @if (hasDocument()) {
+      @if (canUpdate) {
+      <div class="card">
+        <h3>🔄 Update KYC Document</h3>
+        <p class="hint">Replace your rejected document with a new one for re-review.</p>
+        <input type="file" accept="image/*,application/pdf" (change)="onUpdateFileChange($event)" />
+        @if (selectedUpdateFile()) {
+          <p class="file-name">📎 {{ selectedUpdateFile()!.name }}</p>
+        }
+        <button class="btn-secondary" (click)="update()" [disabled]="loading() || !selectedUpdateFile()">
+          @if (loading()) { <span class="spin"></span> } Update Document
+        </button>
+      </div>
+      }
+
+      <!-- Download -->
+      <div class="card">
+        <h3>⬇️ Download My Document</h3>
+        <p class="hint">Download your currently uploaded KYC document.</p>
+        <button class="btn-primary" (click)="download()" [disabled]="loading()">
+          Download Document
+        </button>
+      </div>
+
+      <!-- Delete -->
+      @if (canDelete) {
+        <div class="card danger-card">
+          <h3>🗑️ Delete Document</h3>
+          <p class="hint">Permanently removes your KYC document and resets the status to NOT_STARTED.</p>
+          <button class="btn-danger" (click)="confirmDelete()" [disabled]="loading()">
+            Delete Document
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>
+
+@if (showDeleteConfirm()) {
+  <app-confirm-dialog
+    message="Are you sure you want to delete your KYC document? This action cannot be undone."
+    (confirmed)="deleteDoc()"
+    (cancelled)="cancelDelete()" />
+}
+
+

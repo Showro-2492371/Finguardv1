@@ -1,0 +1,95 @@
+<div class="form-card">
+  <h2 class="card-title">New Transaction</h2>
+
+  <form [formGroup]="form" novalidate>
+    <!-- Amount -->
+    <div class="field-group">
+      <label for="amount">Amount (₹)</label>
+      <input
+        id="amount"
+        type="number"
+        formControlName="amount"
+        placeholder="Enter amount in ₹"
+        min="0.01"
+        step="0.01"
+      />
+      @if (form.get('amount')?.errors?.['required'] && form.get('amount')?.touched) {
+        <span class="error-text">Amount is required</span>
+      }
+      @if (form.get('amount')?.errors?.['min'] && form.get('amount')?.touched) {
+        <span class="error-text">Amount must be greater than 0</span>
+      }
+    </div>
+
+    <!-- Channel -->
+    <div class="field-group">
+      <label for="channel">Channel</label>
+      <select id="channel" formControlName="channel">
+        <option value="" disabled>Please select a channel</option>
+        @for (opt of channelOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+      @if (form.get('channel')?.invalid && form.get('channel')?.touched) {
+        <span class="error-text">Please select a channel</span>
+      }
+    </div>
+
+    <!-- Transaction Type -->
+    <div class="field-group">
+      <label>Transaction Type</label>
+      <div class="radio-group">
+        @for (opt of typeOptions; track opt.value) {
+          <label class="radio-label">
+            <input type="radio" formControlName="transactionType" [value]="opt.value" />
+            {{ opt.label }}
+          </label>
+        }
+      </div>
+      @if (form.get('transactionType')?.invalid && form.get('transactionType')?.touched) {
+        <span class="error-text">Please select transaction type</span>
+      }
+    </div>
+
+    @if (errorMsg()) {
+      <div class="alert-error">⚠️ {{ errorMsg() }}</div>
+    }
+
+    <div class="btn-row">
+      <button type="button" class="btn-secondary" (click)="checkFraud()" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner"></span>
+        }
+        🔍 Check Fraud Risk
+      </button>
+      <button type="button" class="btn-primary" (click)="submit()" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner"></span>
+        }
+        ✅ Submit Transaction
+      </button>
+    </div>
+  </form>
+
+  <!-- Fraud risk info panel -->
+  <div class="info-panel">
+    <details>
+      <summary>ℹ️ How is fraud risk scored?</summary>
+      <ul>
+        <li><strong>+40</strong> — KYC not verified</li>
+        <li><strong>+50</strong> — Account not active</li>
+        <li><strong>+30</strong> — Amount above ₹50,000</li>
+        <li><strong>+20</strong> — ATM transaction above ₹20,000</li>
+        <li><strong>+30</strong> — 3+ transactions in last 5 minutes</li>
+        <li><strong>+20</strong> — 2+ flagged transactions in last 24 hours</li>
+        <li><strong>+10</strong> — MFA disabled &amp; amount &gt; ₹10,000</li>
+      </ul>
+      <p class="thresholds">
+        Score ≥ 60 → <span class="badge blocked">BLOCKED</span> &nbsp;
+        Score ≥ 30 → <span class="badge flagged">FLAGGED</span> &nbsp;
+        Score &lt; 30 → <span class="badge success">SUCCESS</span>
+      </p>
+    </details>
+  </div>
+</div>
+

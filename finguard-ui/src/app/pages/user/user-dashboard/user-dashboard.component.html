@@ -1,0 +1,46 @@
+<app-navbar role="user" />
+<div class="page">
+  <div class="page-title">
+    <h1>Welcome back, {{ auth.getUsername() }}! 👋</h1>
+    <p>Manage your transactions and KYC verification from here.</p>
+  </div>
+
+  <div class="grid-3">
+    <!-- Account Info -->
+    <div class="card">
+      <div class="card-icon">👤</div>
+      <h3>Account Info</h3>
+      <div class="info-rows">
+        <div class="info-row"><span>Customer ID</span><b>{{ auth.getCustomerId() }}</b></div>
+        <div class="info-row"><span>Username</span><b>{{ auth.getUsername() }}</b></div>
+        <div class="info-row"><span>Role</span><b>USER</b></div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <h3>Quick Actions</h3>
+      <div class="action-list">
+        <a routerLink="/user/transactions" class="action-btn primary">💳 Submit Transaction</a>
+        <a routerLink="/user/kyc"          class="action-btn secondary">📄 KYC Verification</a>
+      </div>
+    </div>
+
+    <!-- Fraud Scoring Guide -->
+    <div class="card">
+      <div class="card-icon">🛡️</div>
+      <h3>Fraud Risk Guide</h3>
+      <ul class="risk-list">
+        <li><span class="score">+40</span> KYC not verified</li>
+        <li><span class="score">+50</span> Account not active</li>
+        <li><span class="score">+30</span> Amount > ₹50,000</li>
+        <li><span class="score">+20</span> ATM + amount > ₹20,000</li>
+        <li><span class="score">+30</span> 3+ transactions / 5 min</li>
+        <li><span class="score">+20</span> 2+ FLAGGED / 24 hrs</li>
+        <li><span class="score">+10</span> MFA off & amount > ₹10,000</li>
+      </ul>
+    </div>
+  </div>
+</div>
+

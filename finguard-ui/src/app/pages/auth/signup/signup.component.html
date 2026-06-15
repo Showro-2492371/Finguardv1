@@ -1,0 +1,94 @@
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo">🛡️</div>
+      <h1>FinGuard</h1>
+      <p>@if (portal() === 'admin') { Admin Sign Up } @else { User Sign Up }</p>
+    </div>
+
+    @if (infoMsg()) {
+      <app-alert-banner type="info" [message]="infoMsg()" (dismissed)="infoMsg.set('')" />
+    }
+
+    @if (errorMsg()) {
+      <app-alert-banner type="error" [message]="errorMsg()" (dismissed)="errorMsg.set('')" />
+    }
+
+    @if (!isAdminPortal()) {
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" formControlName="name" placeholder="Enter your name" />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) {
+          <span class="err">Name is required</span>
+        }
+      </div>
+
+      <div class="field">
+        <label>Contact Info</label>
+        <input type="text" formControlName="contactInfo" placeholder="Email or phone number" />
+        @if (form.get('contactInfo')?.invalid && form.get('contactInfo')?.touched) {
+          <span class="err">Contact info is required</span>
+        }
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <div class="pass-wrap">
+          <input [type]="showPass() ? 'text' : 'password'" formControlName="password" placeholder="Min 6 characters" />
+          <button type="button" class="eye" (click)="showPass.update(v=>!v)">{{ showPass() ? '🙈' : '👁️' }}</button>
+        </div>
+        @if (form.get('password')?.errors?.['required'] && form.get('password')?.touched) {
+          <span class="err">Password is required</span>
+        }
+        @if (form.get('password')?.errors?.['minlength'] && form.get('password')?.touched) {
+          <span class="err">Password must be at least 6 characters</span>
+        }
+      </div>
+
+      <div class="field">
+        <label>Confirm Password</label>
+        <div class="pass-wrap">
+          <input [type]="showConfirm() ? 'text' : 'password'" formControlName="confirmPassword" placeholder="Re-enter password" />
+          <button type="button" class="eye" (click)="showConfirm.update(v=>!v)">{{ showConfirm() ? '🙈' : '👁️' }}</button>
+        </div>
+        @if (form.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched) {
+          <span class="err">Passwords do not match</span>
+        }
+      </div>
+
+      <div class="field-check">
+        <label class="check-label">
+          <input type="checkbox" formControlName="mfaEnabled" />
+          Enable MFA (Multi-Factor Authentication)
+        </label>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading()">
+        @if (loading()) { <span class="spin"></span> Creating account... } @else { Create Account }
+      </button>
+    </form>
+    } @else {
+      <div class="admin-signup-disabled">
+        <h3>Admin registration is restricted</h3>
+        <p>For security reasons, admin accounts cannot be created from this page.</p>
+        <p>If you need admin access, contact the platform owner.</p>
+      </div>
+    }
+
+    <p class="footer-link">
+      Already have an account?
+      <a [routerLink]="portal() === 'admin' ? '/admin/login' : '/user/login'">Sign In</a>
+    </p>
+    <p class="footer-link alt-link">
+      @if (portal() === 'admin') {
+        Not an admin? <a routerLink="/user/signup">Go to User Sign Up</a>
+      } @else {
+        Are you admin? <a routerLink="/admin/signup">Go to Admin Sign Up</a>
+      }
+    </p>
+  </div>
+</div>
+
+
+

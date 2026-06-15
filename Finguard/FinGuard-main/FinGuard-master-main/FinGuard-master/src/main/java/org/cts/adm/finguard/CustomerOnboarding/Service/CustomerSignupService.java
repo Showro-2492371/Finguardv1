@@ -1,5 +1,6 @@
 package org.cts.adm.finguard.CustomerOnboarding.Service;
 
+import org.cts.adm.finguard.CustomerOnboarding.Exception.DuplicateContactInfoException;
 import org.cts.adm.finguard.CustomerOnboarding.Model.Customer;
 import org.cts.adm.finguard.CustomerOnboarding.Repository.CustomerRepository;
 import org.slf4j.Logger;
@@ -23,6 +24,17 @@ public class CustomerSignupService {
 
         logger.info("Customer signup process started for name={}", customer.getName());
         logger.debug("Saving customer details to database");
+
+        String contactInfo = customer.getContactInfo();
+        if (contactInfo != null) {
+            contactInfo = contactInfo.trim();
+            customer.setContactInfo(contactInfo);
+        }
+
+        if (contactInfo != null && customerRepository.existsByContactInfo(contactInfo)) {
+            logger.warn("Signup blocked due to duplicate contactInfo={}", contactInfo);
+            throw new DuplicateContactInfoException("Contact already registered. Please login instead.");
+        }
 
         try {
             customerRepository.save(customer);

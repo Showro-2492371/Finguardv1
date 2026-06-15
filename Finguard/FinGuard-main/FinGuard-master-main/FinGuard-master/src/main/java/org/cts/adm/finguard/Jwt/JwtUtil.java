@@ -4,20 +4,21 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Base64;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    private static final String SECRET =
-            Base64.getEncoder().encodeToString(
-                    Keys.secretKeyFor(SignatureAlgorithm.HS256).getEncoded()
-            );
+    @Value("${security.jwt.secret}")
+    private String secret;
 
-    private static final long EXPIRATION = 1000 * 60 * 60; // 1 hour
+    @Value("${security.jwt.expiration-ms:3600000}")
+    private long expirationMs;
 
     public String generateToken(Long customerId, String username, String role) {
         return Jwts.builder()
@@ -25,8 +26,8 @@ public class JwtUtil {
                 .claim("customerId", customerId)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()), SignatureAlgorithm.HS256)
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -44,10 +45,14 @@ public class JwtUtil {
 
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET.getBytes())
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public boolean isTokenValid(String token) {

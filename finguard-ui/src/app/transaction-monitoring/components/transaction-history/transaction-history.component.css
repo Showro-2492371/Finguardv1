@@ -1,0 +1,108 @@
+.history-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  padding: 28px;
+  margin-top: 24px;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f2f5;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a2332;
+  margin: 0;
+}
+
+.btn-clear {
+  padding: 8px 16px;
+  border: 1.5px solid #dc3545;
+  color: #dc3545;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-clear:hover {
+  background: #dc3545;
+  color: #fff;
+}
+
+.empty-history {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+  font-size: 15px;
+}
+
+.empty-history span { font-size: 36px; display: block; margin-bottom: 8px; }
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+thead {
+  background: #f8f9fa;
+}
+
+th {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #6c757d;
+  white-space: nowrap;
+  border-bottom: 2px solid #e9ecef;
+}
+
+td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f0f2f5;
+  color: #333;
+  vertical-align: middle;
+}
+
+tr:hover td { background: #f8fbff; }
+
+.mono {
+  font-family: monospace;
+  font-size: 12px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.badge-success { background: #28a745; color: #fff; }
+.badge-flagged { background: #ffc107; color: #333; }
+.badge-blocked { background: #dc3545; color: #fff; }
+
