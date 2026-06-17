@@ -1,5 +1,5 @@
-<div class="auth-wrap">
-  <div class="auth-card">
+<div class="auth-wrap" [ngClass]="portal() === 'admin' ? 'admin-theme' : 'user-theme'">
+  <div class="auth-card" [ngClass]="portal() === 'admin' ? 'admin-card' : 'user-card'">
     <div class="auth-header">
       <div class="logo">🛡️</div>
       <h1>FinGuard</h1>
@@ -28,7 +28,7 @@
         <div class="pass-wrap">
           <input [type]="showPass() ? 'text' : 'password'" formControlName="password"
             placeholder="Enter your password" autocomplete="current-password" />
-          <button type="button" class="eye" (click)="showPass.update(v=>!v)">
+          <button type="button" class="eye" (click)="togglePasswordVisibility()">
             {{ showPass() ? '🙈' : '👁️' }}
           </button>
         </div>

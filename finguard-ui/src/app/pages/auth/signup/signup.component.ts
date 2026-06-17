@@ -53,6 +53,14 @@ export class SignupComponent {
     });
   }
 
+  togglePasswordVisibility() {
+    this.showPass.update(value => !value);
+  }
+
+  toggleConfirmVisibility() {
+    this.showConfirm.update(value => !value);
+  }
+
   submit() {
     if (this.isAdminPortal()) {
       this.errorMsg.set('Admin self-signup is disabled. Please contact the system administrator.');

@@ -4,12 +4,13 @@
   font-weight: 700;
   letter-spacing: .4px;
   white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(15, 27, 61, 0.16);
 }
 .badge.md { padding: 4px 12px; font-size: 12px; }
 .badge.sm { padding: 2px 8px;  font-size: 11px; }
-.badge.green  { background: #28a745; color: #fff; }
-.badge.amber  { background: #ffc107; color: #333; }
-.badge.red    { background: #dc3545; color: #fff; }
-.badge.orange { background: #fd7e14; color: #fff; }
-.badge.blue   { background: #3a7bd5; color: #fff; }
+.badge.green  { background: var(--color-success); color: var(--color-white); }
+.badge.amber  { background: var(--color-warning); color: #2f2b1d; }
+.badge.red    { background: var(--color-danger); color: var(--color-white); }
+.badge.orange { background: var(--color-orange); color: var(--color-white); }
+.badge.blue   { background: var(--color-primary); color: var(--color-white); }
 

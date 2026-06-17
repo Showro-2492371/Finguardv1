@@ -1,20 +1,20 @@
 .dashboard-shell {
   min-height: 100vh;
-  background: #f0f4f8;
+  background: var(--color-bg);
   display: flex;
   flex-direction: column;
 }
 
 /* Navbar */
 .navbar {
-  background: #1a2332;
-  color: #fff;
+  background: var(--surface-navbar);
+  color: var(--color-white);
   padding: 0 28px;
   height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 22px rgba(15, 27, 61, 0.26);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -34,14 +34,14 @@
 
 .nav-user {
   font-size: 14px;
-  color: #adb5bd;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .btn-logout {
   padding: 7px 18px;
   background: transparent;
-  border: 1.5px solid rgba(255,255,255,0.4);
-  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.45);
+  color: var(--color-white);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
@@ -50,8 +50,8 @@
 }
 
 .btn-logout:hover {
-  background: rgba(255,255,255,0.1);
-  border-color: #fff;
+  background: rgba(255,255,255,0.16);
+  border-color: var(--color-white);
 }
 
 /* Main */
@@ -71,12 +71,12 @@
 .page-title h1 {
   font-size: 26px;
   font-weight: 700;
-  color: #1a2332;
+  color: var(--color-navy);
   margin: 0 0 4px;
 }
 
 .page-title p {
-  color: #6c757d;
+  color: var(--color-text-muted);
   font-size: 14px;
   margin: 0;
 }

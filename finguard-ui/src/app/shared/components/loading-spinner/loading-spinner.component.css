@@ -1,8 +1,8 @@
 .spinner {
   border-radius: 50%;
   border-style: solid;
-  border-color: rgba(58,123,213,.2);
-  border-top-color: #3a7bd5;
+  border-color: var(--spinner-track, rgba(58, 123, 213, .2));
+  border-top-color: var(--color-primary);
   animation: spin .7s linear infinite;
   display: inline-block;
 }

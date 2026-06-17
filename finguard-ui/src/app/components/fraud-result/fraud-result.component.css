@@ -1,11 +1,11 @@
-.card,.empty-card{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:24px;height:100%;box-sizing:border-box;}
+.card,.empty-card{background:var(--surface-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:24px;height:100%;box-sizing:border-box;border:1px solid var(--color-border);}
 .empty-card{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--color-text-muted);}
 .empty-icon{font-size:48px;margin-bottom:12px;}
-.card-title{font-size:20px;font-weight:700;color:var(--color-navy);margin:0 0 16px;padding-bottom:12px;border-bottom:2px solid #f0f2f5;}
-.banner{padding:12px 16px;border-radius:6px;margin-bottom:14px;font-size:14px;font-weight:500;}
-.banner.danger{background:#fff3f3;border-left:4px solid #dc3545;color:#721c24;}
-.banner.success{background:#f0fff4;border-left:4px solid #28a745;color:#155724;}
-.banner.info{background:#e8f4fd;border-left:4px solid #3a7bd5;color:#0c3466;}
+.card-title{font-size:20px;font-weight:700;color:var(--color-navy);margin:0 0 16px;padding-bottom:12px;border-bottom:2px solid var(--color-border);}
+.banner{padding:12px 16px;border-radius:10px;margin-bottom:14px;font-size:14px;font-weight:500;box-shadow:0 8px 20px rgba(15, 27, 61, 0.12);}
+.banner.danger{background:linear-gradient(180deg,#fff5f5 0%,#ffeded 100%);border-left:4px solid var(--color-danger);color:#721c24;}
+.banner.success{background:linear-gradient(180deg,#f4fff8 0%,#ecfff3 100%);border-left:4px solid var(--color-success);color:#155724;}
+.banner.info{background:linear-gradient(180deg,#f2ecff 0%,#e9ddff 100%);border-left:4px solid var(--color-primary);color:#35245f;}
 .meta-row{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:16px;}
 .meta-item{display:flex;flex-direction:column;gap:4px;min-width:120px;}
 .label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted);}
@@ -13,6 +13,6 @@
 .mono{font-family:monospace;font-size:12px;word-break:break-all;}
 .fraud-yes{color:var(--color-danger);font-weight:700;}
 .fraud-no{color:var(--color-success);font-weight:700;}
-.reasons{margin:0;padding-left:18px;font-size:14px;line-height:1.9;color:#495057;}
+.reasons{margin:0;padding-left:18px;font-size:14px;line-height:1.9;color:var(--color-text);}
 .muted{color:var(--color-text-muted);font-size:14px;margin:0;}
 

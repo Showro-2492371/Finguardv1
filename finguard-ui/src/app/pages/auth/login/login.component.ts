@@ -39,6 +39,10 @@ export class LoginComponent {
     });
   }
 
+  togglePasswordVisibility() {
+    this.showPass.update(value => !value);
+  }
+
   submit() {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
     this.loading.set(true); this.errorMsg.set('');
