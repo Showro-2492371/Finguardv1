@@ -1,0 +1,140 @@
+<app-navbar role="admin" />
+<div class="page">
+  <div class="page-title">
+    <h1>📊 Fraud Analytics & Dashboard</h1>
+    <p>Visualise fraud trends, risk patterns and transaction insights.</p>
+  </div>
+
+  @if (successMsg()) {
+    <app-alert-banner type="success" [message]="successMsg()" (dismissed)="successMsg.set('')" />
+  }
+  @if (errorMsg()) {
+    <app-alert-banner type="error" [message]="errorMsg()" (dismissed)="errorMsg.set('')" />
+  }
+
+  <div class="toolbar">
+    <button class="btn-primary" (click)="generateSnapshot()" [disabled]="genLoading()">
+      @if (genLoading()) { <span class="spin"></span> } 🔄 Refresh Analytics
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="center"><app-loading-spinner size="lg" /></div>
+  } @else {
+
+    @if (latest(); as snap) {
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card blue">
+          <div class="kpi-icon">💳</div>
+          <div class="kpi-val">{{ snap.totalTransactions }}</div>
+          <div class="kpi-label">Total Transactions</div>
+        </div>
+        <div class="kpi-card orange">
+          <div class="kpi-icon">🚩</div>
+          <div class="kpi-val">{{ snap.flaggedTransactions }}</div>
+          <div class="kpi-label">Flagged Transactions</div>
+        </div>
+        <div class="kpi-card red">
+          <div class="kpi-icon">🚫</div>
+          <div class="kpi-val">{{ snap.blockedTransactions }}</div>
+          <div class="kpi-label">Blocked Transactions</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-icon">👥</div>
+          <div class="kpi-val">{{ snap.activeCustomers }}</div>
+          <div class="kpi-label">Active Customers</div>
+        </div>
+      </div>
+
+      <!-- Fraud Rate & Risk Trend -->
+      <div class="metrics-grid">
+        <div class="card">
+          <h3>Fraud Rate</h3>
+          <div class="big-metric">
+            <span class="metric-val" [class]="fraudRateClass(snap.fraudRate)">
+              {{ snap.fraudRate | number:'1.1-2' }}%
+            </span>
+            <span class="metric-sub">of all transactions are suspected fraud</span>
+          </div>
+          <div class="bar-wrap">
+            <div class="bar-fill fraud" [style.width]="clamp(snap.fraudRate) + '%'"></div>
+          </div>
+          <p class="bar-hint">
+            <span class="dot orange"></span> Flagged: {{ snap.flaggedTransactions }}
+            &nbsp;&nbsp;
+            <span class="dot red"></span> Blocked: {{ snap.blockedTransactions }}
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Average Risk Score (Risk Trend)</h3>
+          <div class="big-metric">
+            <span class="metric-val" [class]="fraudRateClass(snap.riskTrend)">
+              {{ snap.riskTrend | number:'1.1-2' }}
+            </span>
+            <span class="metric-sub">average risk score across all transactions</span>
+          </div>
+          <div class="bar-wrap">
+            <div class="bar-fill risk" [style.width]="clamp(snap.riskTrend) + '%'"></div>
+          </div>
+          <p class="bar-hint">
+            <span class="dot blue"></span> Score range: 0 – 100
+            &nbsp;&nbsp;
+            <span class="dot red"></span> Block threshold: ≥ 60
+          </p>
+        </div>
+      </div>
+
+      <p class="snapshot-date">
+        Latest snapshot: {{ parseDate(snap.generatedDate) | date:'dd MMM yyyy, HH:mm:ss' }}
+      </p>
+    }
+
+    <!-- Trend History Table -->
+    @if (history().length > 0) {
+      <div class="card mt">
+        <h3>Analytics History (Last {{ history().length }} Snapshots)</h3>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Fraud Rate</th>
+                <th>Risk Trend</th>
+                <th>Total Txns</th>
+                <th>Flagged</th>
+                <th>Blocked</th>
+                <th>Active Customers</th>
+                <th>Generated</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (snap of history(); track snap.analyticsId; let i = $index) {
+                <tr>
+                  <td>{{ i + 1 }}</td>
+                  <td>
+                    <span class="badge" [class]="fraudRateClass(snap.fraudRate)">
+                      {{ snap.fraudRate | number:'1.1-2' }}%
+                    </span>
+                  </td>
+                  <td>{{ snap.riskTrend | number:'1.1-2' }}</td>
+                  <td>{{ snap.totalTransactions }}</td>
+                  <td class="orange-text">{{ snap.flaggedTransactions }}</td>
+                  <td class="red-text">{{ snap.blockedTransactions }}</td>
+                  <td>{{ snap.activeCustomers }}</td>
+                  <td>{{ parseDate(snap.generatedDate) | date:'dd MMM yy, HH:mm' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <div class="empty">
+        No analytics snapshots yet. Click "Refresh Analytics" to generate the first one.
+      </div>
+    }
+  }
+</div>
+

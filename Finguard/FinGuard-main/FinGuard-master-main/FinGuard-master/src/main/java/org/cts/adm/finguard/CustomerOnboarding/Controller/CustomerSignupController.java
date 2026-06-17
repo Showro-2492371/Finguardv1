@@ -1,13 +1,19 @@
 package org.cts.adm.finguard.CustomerOnboarding.Controller;
 
-import org.cts.adm.finguard.CustomerOnboarding.Eunm.Role;
-import org.cts.adm.finguard.CustomerOnboarding.Model.Customer;
-import org.cts.adm.finguard.CustomerOnboarding.Repository.CustomerRepository;
+import jakarta.validation.Valid;
+import org.cts.adm.finguard.CustomerOnboarding.Dto.CustomerSignupRequest;
 import org.cts.adm.finguard.CustomerOnboarding.Service.CustomerSignupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Handles customer self-registration.
+ * Accepts a validated DTO (NOT a raw entity) to prevent privilege escalation
+ * (e.g., a client cannot set their own role or accountStatus via the API).
+ */
 @RestController
 @RequestMapping("/api/customer")
 public class CustomerSignupController {
@@ -15,46 +21,25 @@ public class CustomerSignupController {
     private static final Logger logger =
             LoggerFactory.getLogger(CustomerSignupController.class);
 
-    private final CustomerRepository customerRepository;
     private final CustomerSignupService customerSignupService;
 
-    public CustomerSignupController(CustomerRepository customerRepository,
-                                    CustomerSignupService customerSignupService) {
-        this.customerRepository = customerRepository;
+    public CustomerSignupController(CustomerSignupService customerSignupService) {
         this.customerSignupService = customerSignupService;
     }
 
     @PostMapping("/signup")
-    public void createCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<String> createCustomer(@Valid @RequestBody CustomerSignupRequest request) {
 
-        logger.info("Customer signup request received for name={}", customer.getName());
-        logger.debug("Processing customer signup");
+        logger.info("Customer signup request received for name={}", request.getName());
 
         try {
-            // ✅ Default role assignment
-            customer.setRole(Role.ROLE_USER);
-
-            customerSignupService.SignUp(customer);
-
-            logger.info("Customer signup successful for name={}", customer.getName());
+            customerSignupService.signUp(request);
+            logger.info("Customer signup successful for name={}", request.getName());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Customer registered successfully");
         } catch (RuntimeException e) {
-            logger.error("Customer signup failed for name={}", customer.getName(), e);
+            logger.error("Customer signup failed for name={}", request.getName(), e);
             throw e;
         }
     }
-
-//    @PostMapping("/signup")
-//    public void createCustomer(@RequestBody Customer customer) {
-//
-//        logger.info("Customer signup request received for name={}", customer.getName());
-//        logger.debug("Processing customer signup");
-//
-//        try {
-//            customerSignupService.SignUp(customer);
-//            logger.info("Customer signup successful for name={}", customer.getName());
-//        } catch (RuntimeException e) {
-//            logger.error("Customer signup failed for name={}", customer.getName(), e);
-//            throw e;
-//        }
-//    }
 }

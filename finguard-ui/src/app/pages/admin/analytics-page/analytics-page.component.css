@@ -1,0 +1,70 @@
+.page{padding:28px;max-width:1400px;margin:0 auto;}
+.page-title{margin-bottom:20px;}
+.page-title h1{font-size:26px;font-weight:700;color:var(--color-navy);margin:0 0 4px;}
+.page-title p{color:var(--color-text-muted);font-size:14px;margin:0;}
+.toolbar{margin-bottom:20px;display:flex;gap:12px;flex-wrap:wrap;}
+.center{display:flex;justify-content:center;padding:40px 0;}
+.empty{background:var(--surface-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:40px;text-align:center;color:var(--color-text-muted);border:1px solid var(--color-border);}
+.mt{margin-top:20px;}
+
+/* KPI Cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr;}}
+.kpi-card{background:var(--surface-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:24px;text-align:center;border-top:4px solid transparent;}
+.kpi-card.blue{border-top-color:#3b82f6;}
+.kpi-card.orange{border-top-color:#f59e0b;}
+.kpi-card.red{border-top-color:#ef4444;}
+.kpi-card.green{border-top-color:#10b981;}
+.kpi-icon{font-size:28px;margin-bottom:8px;}
+.kpi-val{font-size:32px;font-weight:800;color:var(--color-navy);}
+.kpi-label{font-size:13px;color:var(--color-text-muted);font-weight:600;margin-top:4px;}
+
+/* Metric Cards */
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:8px;}
+@media(max-width:768px){.metrics-grid{grid-template-columns:1fr;}}
+.card{background:var(--surface-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:24px;border:1px solid var(--color-border);}
+.card h3{font-size:15px;font-weight:700;color:var(--color-navy);margin:0 0 16px;}
+.big-metric{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;}
+.metric-val{font-size:40px;font-weight:800;}
+.metric-sub{font-size:13px;color:var(--color-text-muted);}
+.bar-wrap{background:#e5e7eb;border-radius:999px;height:12px;overflow:hidden;margin-bottom:10px;}
+.bar-fill{height:100%;border-radius:999px;transition:width .5s ease;}
+.bar-fill.fraud{background:linear-gradient(90deg,#f59e0b,#ef4444);}
+.bar-fill.risk{background:linear-gradient(90deg,#3b82f6,#8b5cf6);}
+.bar-hint{font-size:12px;color:var(--color-text-muted);display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+.dot.orange{background:#f59e0b;}
+.dot.red{background:#ef4444;}
+.dot.blue{background:#3b82f6;}
+
+.snapshot-date{font-size:12px;color:var(--color-text-muted);text-align:right;margin-bottom:4px;}
+
+/* Badges */
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;}
+.badge-critical,.metric-val.badge-critical{color:#dc2626;}
+.badge-critical{background:#fee2e2;}
+.badge-high,.metric-val.badge-high{color:#d97706;}
+.badge-high{background:#fef3c7;}
+.badge-medium,.metric-val.badge-medium{color:#2563eb;}
+.badge-medium{background:#dbeafe;}
+.badge-low,.metric-val.badge-low{color:#059669;}
+.badge-low{background:#d1fae5;}
+
+/* Table */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead{background:var(--surface-table-head);}
+th{padding:10px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--color-text-muted);border-bottom:2px solid var(--color-border);white-space:nowrap;}
+td{padding:10px 12px;border-bottom:1px solid var(--color-border);vertical-align:middle;}
+tr:hover td{background:var(--surface-hover);}
+.orange-text{color:#d97706;font-weight:700;}
+.red-text{color:#dc2626;font-weight:700;}
+
+/* Buttons */
+.btn-primary{padding:11px 20px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(120deg,var(--color-navy) 0%,var(--color-primary) 100%);color:var(--color-white);border:none;box-shadow:0 8px 18px rgba(15,27,61,.24);}
+.btn-primary:hover:not(:disabled){filter:brightness(1.06);}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+

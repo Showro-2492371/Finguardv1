@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -27,6 +28,9 @@ class CustomerLoginServiceTest {
     @Mock
     private JwtUtil jwtUtil;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private CustomerLoginService customerLoginService;
 
@@ -40,6 +44,7 @@ class CustomerLoginServiceTest {
         customer.setAccountStatus(AccountStatus.CLOSED);
 
         when(customerRepository.findAllByName("sam")).thenReturn(List.of(customer));
+        when(passwordEncoder.encode("secret")).thenReturn("hashed-secret");
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> customerLoginService.login("sam", "secret"));
@@ -58,6 +63,7 @@ class CustomerLoginServiceTest {
 
         when(customerRepository.findAllByName("jane")).thenReturn(List.of(customer));
         when(jwtUtil.generateToken(16L, "jane", "ROLE_USER")).thenReturn("token-123");
+        when(passwordEncoder.encode("secret")).thenReturn("hashed-secret");
 
         String token = customerLoginService.login("jane", "secret");
 
@@ -75,6 +81,7 @@ class CustomerLoginServiceTest {
 
         when(customerRepository.findAllByName("sam")).thenReturn(List.of(customer));
         when(jwtUtil.generateToken(15L, "sam", "ROLE_USER")).thenReturn("token-pending");
+        when(passwordEncoder.encode("secret")).thenReturn("hashed-secret");
 
         String token = customerLoginService.login("sam", "secret");
 
@@ -91,6 +98,7 @@ class CustomerLoginServiceTest {
         customer.setAccountStatus(AccountStatus.SUSPENDED);
 
         when(customerRepository.findAllByName("blocked")).thenReturn(List.of(customer));
+        when(passwordEncoder.encode("secret")).thenReturn("hashed-secret");
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> customerLoginService.login("blocked", "secret"));
@@ -109,6 +117,7 @@ class CustomerLoginServiceTest {
 
         when(customerRepository.findAllByName("legacy-user")).thenReturn(List.of(customer));
         when(jwtUtil.generateToken(18L, "legacy-user", "ROLE_USER")).thenReturn("token-legacy");
+        when(passwordEncoder.encode("secret")).thenReturn("hashed-secret");
 
         String token = customerLoginService.login("legacy-user", "secret");
 

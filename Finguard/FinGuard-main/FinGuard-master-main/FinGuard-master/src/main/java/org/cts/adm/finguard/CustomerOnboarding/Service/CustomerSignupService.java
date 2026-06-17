@@ -1,12 +1,13 @@
 package org.cts.adm.finguard.CustomerOnboarding.Service;
 
+import org.cts.adm.finguard.CustomerOnboarding.Dto.CustomerSignupRequest;
 import org.cts.adm.finguard.CustomerOnboarding.Exception.DuplicateContactInfoException;
 import org.cts.adm.finguard.CustomerOnboarding.Model.Customer;
 import org.cts.adm.finguard.CustomerOnboarding.Repository.CustomerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.cts.adm.finguard.CustomerOnboarding.Dto.CustomerSignupRequest;
 
 @Service
 public class CustomerSignupService {
@@ -15,26 +16,34 @@ public class CustomerSignupService {
             LoggerFactory.getLogger(CustomerSignupService.class);
 
     private final CustomerRepository customerRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public CustomerSignupService(CustomerRepository customerRepository) {
+    public CustomerSignupService(CustomerRepository customerRepository,
+                                  PasswordEncoder passwordEncoder) {
         this.customerRepository = customerRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public void SignUp(Customer customer) {
+    /**
+     * Registers a new customer. Password is BCrypt-encoded before persistence.
+     */
+    public void signUp(CustomerSignupRequest request) {
+        logger.info("Customer signup process started for name={}", request.getName());
 
-        logger.info("Customer signup process started for name={}", customer.getName());
-        logger.debug("Saving customer details to database");
-
-        String contactInfo = customer.getContactInfo();
-        if (contactInfo != null) {
-            contactInfo = contactInfo.trim();
-            customer.setContactInfo(contactInfo);
-        }
+        String contactInfo = request.getContactInfo() != null
+                ? request.getContactInfo().trim() : null;
 
         if (contactInfo != null && customerRepository.existsByContactInfo(contactInfo)) {
             logger.warn("Signup blocked due to duplicate contactInfo={}", contactInfo);
             throw new DuplicateContactInfoException("Contact already registered. Please login instead.");
         }
+
+        Customer customer = new Customer();
+        customer.setName(request.getName());
+        customer.setContactInfo(contactInfo);
+        // BCrypt encode the password – never store plain text
+        customer.setPassword(passwordEncoder.encode(request.getPassword()));
+        customer.setMfaEnabled(request.isMfaEnabled());
 
         try {
             customerRepository.save(customer);
@@ -45,14 +54,14 @@ public class CustomerSignupService {
         }
     }
 
-    // Overload used by tests: accept DTO and map to entity
-    public void signUp(CustomerSignupRequest request) {
-        Customer c = new Customer();
-        c.setName(request.getName());
-        c.setContactInfo(request.getContactInfo());
-        c.setPassword(request.getPassword());
-        c.setMfaEnabled(request.isMfaEnabled());
-        // delegate to existing save flow
-        SignUp(c);
+    /** @deprecated use signUp(CustomerSignupRequest) */
+    @Deprecated
+    public void SignUp(Customer customer) {
+        CustomerSignupRequest req = new CustomerSignupRequest();
+        req.setName(customer.getName());
+        req.setContactInfo(customer.getContactInfo());
+        req.setPassword(customer.getPassword());
+        req.setMfaEnabled(customer.isMfaEnabled());
+        signUp(req);
     }
 }

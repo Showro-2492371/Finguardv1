@@ -17,5 +17,10 @@ export class RiskAlertService {
   getAlertById(id: number): Observable<RiskAlertResponse> {
     return this.http.get<RiskAlertResponse>(`${this.BASE}/alerts/${id}`);
   }
+
+  /** Update lifecycle status of an alert (ADMIN only) */
+  updateAlertStatus(id: number, status: RiskAlertStatus): Observable<RiskAlertResponse> {
+    return this.http.patch<RiskAlertResponse>(`${this.BASE}/alerts/${id}/status`, { status });
+  }
 }
 

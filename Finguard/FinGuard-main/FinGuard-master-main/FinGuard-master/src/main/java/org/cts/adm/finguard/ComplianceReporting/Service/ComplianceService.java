@@ -7,10 +7,10 @@ import org.cts.adm.finguard.ComplianceReporting.ExceptionHandling.BadRequestExce
 import org.cts.adm.finguard.ComplianceReporting.ExceptionHandling.ResourceNotFoundException;
 import org.cts.adm.finguard.ComplianceReporting.Model.*;
 import org.cts.adm.finguard.ComplianceReporting.Repository.*;
+import org.cts.adm.finguard.RiskAlert.Enum.RiskAlertStatus;
 import org.cts.adm.finguard.RiskAlert.Model.RiskAlert;
 import org.cts.adm.finguard.RiskAlert.Repository.RiskAlertRepository;
-import org.cts.adm.finguard.TransactionMonitoring.Enum.TransactionStatus;
-import org.cts.adm.finguard.TransactionMonitoring.Repository.TransactionMonitoringRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -19,9 +19,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,21 +30,24 @@ import java.util.stream.Stream;
 @Service
 public class ComplianceService {
 
+    private static final EnumSet<RiskAlertStatus> SUSPECTED_OR_CONFIRMED_STATUSES =
+            EnumSet.of(RiskAlertStatus.NEW, RiskAlertStatus.ESCALATED);
+
     private final ComplianceRepository complianceRepo;
     private final AuditTrailRepository auditRepo;
 
     // Inject other modules (IMPORTANT)
     private final RiskAlertRepository riskAlertRepo;
-    private final TransactionMonitoringRepository transactionRepo;
+
+    @Value("${compliance.fraud-weight:100}")
+    private double fraudWeight;
 
     public ComplianceService(ComplianceRepository complianceRepo,
                              AuditTrailRepository auditRepo,
-                             RiskAlertRepository riskAlertRepo,
-                             TransactionMonitoringRepository transactionRepo) {
+                             RiskAlertRepository riskAlertRepo) {
         this.complianceRepo = complianceRepo;
         this.auditRepo = auditRepo;
         this.riskAlertRepo = riskAlertRepo;
-        this.transactionRepo = transactionRepo;
     }
 
 
@@ -70,19 +73,14 @@ public class ComplianceService {
 
             Long customerId = entry.getKey();
             List<RiskAlert> customerAlerts = entry.getValue();
-
-            int fraudCases = customerAlerts.size();
-
-            double riskScore = customerAlerts.stream()
-                    .mapToDouble(a -> a.getRiskScore().doubleValue())
-                    .sum();
+            ReportMetrics metrics = buildMetrics(customerId, customerAlerts);
 
 //            complianceRepo.deleteByCustomerId(customerId);
 
             ComplianceReport report = ComplianceReport.builder()
                     .customerId(customerId)
-                    .fraudCases(fraudCases)
-                    .riskScore(riskScore)
+                    .fraudCases(metrics.fraudCases())
+                    .riskScore(metrics.riskScore())
                     .generatedDate(LocalDateTime.now())
                     .build();
 
@@ -117,19 +115,14 @@ public class ComplianceService {
             log.warn("No alerts found for customerId={}", customerId);
             throw new ResourceNotFoundException("No alerts found for customerId: " + customerId);
         }
-
-        int fraudCases = alerts.size();
-
-        double riskScore = alerts.stream()
-                .mapToDouble(a -> a.getRiskScore().doubleValue())
-                .sum();
+        ReportMetrics metrics = buildMetrics(customerId, alerts);
 
 //        complianceRepo.deleteByCustomerId(customerId);
 
         ComplianceReport report = ComplianceReport.builder()
                 .customerId(customerId)
-                .fraudCases(fraudCases)
-                .riskScore(riskScore)
+                .fraudCases(metrics.fraudCases())
+                .riskScore(metrics.riskScore())
                 .generatedDate(LocalDateTime.now())
                 .build();
 
@@ -199,11 +192,12 @@ public class ComplianceService {
         }
 
         // Assuming latest report (only one usually exists)
-        ComplianceReport report = reports.get(0);
+        ComplianceReport report = reports.getFirst();
+        ReportMetrics metrics = buildMetrics(customerId, riskAlertRepo.findByCustomerId(customerId));
 
         File dir = new File("reports");
-        if (!dir.exists()) {
-            dir.mkdirs();
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new IOException("Unable to create reports directory");
         }
 
         String filePath = "reports/report_customer_" + customerId + ".csv";
@@ -214,8 +208,8 @@ public class ComplianceService {
             writer.append(
                     report.getReportId() + "," +
                             report.getCustomerId() + "," +
-                            report.getFraudCases() + "," +
-                            report.getRiskScore() + "," +
+                            metrics.fraudCases() + "," +
+                            metrics.riskScore() + "," +
                             report.getGeneratedDate()
             );
         }
@@ -232,7 +226,7 @@ public class ComplianceService {
     }
 
     @Transactional
-    public void deleteReport(Long customerId) {
+    public void deleteReport(Long customerId, String user) {
 
         log.info("Deleting report for customerId={}",customerId);
 
@@ -245,6 +239,13 @@ public class ComplianceService {
             );
         }
         complianceRepo.deleteByCustomerId(customerId);
+
+        String actor = (user == null || user.isBlank()) ? "system" : user;
+        auditRepo.save(new AuditTrail(
+                "Deleted report(s) for customer " + customerId,
+                actor,
+                LocalDateTime.now()
+        ));
 
     }
 
@@ -303,13 +304,70 @@ public class ComplianceService {
 
 
     private ComplianceReportDTO mapToDTO(ComplianceReport r) {
+        // Always derive metrics from live alerts so API responses cannot return stale inconsistencies.
+        ReportMetrics metrics = buildMetrics(r.getCustomerId(), riskAlertRepo.findByCustomerId(r.getCustomerId()));
         return new ComplianceReportDTO(
                 r.getReportId(),
                 r.getCustomerId(),
-                r.getFraudCases(),
-                r.getRiskScore(),
+                metrics.fraudCases(),
+                metrics.riskScore(),
                 r.getGeneratedDate()
         );
+    }
+
+    private ReportMetrics buildMetrics(Long customerId, List<RiskAlert> alerts) {
+        long rawFraudCases = alerts.stream()
+                .filter(this::isFraudCase)
+                .count();
+        int fraudCases = normalizeFraudCases(rawFraudCases);
+
+        double baseRiskFromAlerts = alerts.stream()
+                .map(RiskAlert::getRiskScore)
+                .filter(java.util.Objects::nonNull)
+                .mapToDouble(java.math.BigDecimal::doubleValue)
+                .sum();
+
+        double riskScore = normalizeRiskScore(customerId, fraudCases, baseRiskFromAlerts);
+        return new ReportMetrics(fraudCases, riskScore);
+    }
+
+    private boolean isFraudCase(RiskAlert alert) {
+        if (alert == null) {
+            return false;
+        }
+        RiskAlertStatus status = RiskAlertStatus.normalizeForWorkflow(alert.getStatus());
+        return status != null && SUSPECTED_OR_CONFIRMED_STATUSES.contains(status);
+    }
+
+    private int normalizeFraudCases(long rawFraudCases) {
+        if (rawFraudCases < 0) {
+            throw new IllegalArgumentException("fraudCases cannot be negative");
+        }
+        double floored = Math.floor(rawFraudCases);
+        if (floored > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("fraudCases exceeds supported range");
+        }
+        return (int) floored;
+    }
+
+    private double normalizeRiskScore(Long customerId, int fraudCases, double riskScoreFromAlerts) {
+        double nonNegativeRisk = Math.max(0d, riskScoreFromAlerts);
+        double minimumFraudRisk = fraudCases * fraudWeight;
+
+        if (fraudCases > 0 && nonNegativeRisk == 0d) {
+            log.warn("Risk/fraud mismatch for customerId={} (fraudCases={}, riskScore=0). Applying fallback.",
+                    customerId, fraudCases);
+        }
+
+        if (nonNegativeRisk < minimumFraudRisk) {
+            log.warn("Risk score below fraud minimum for customerId={} (fraudCases={}, riskScore={}, minimum={}).",
+                    customerId, fraudCases, nonNegativeRisk, minimumFraudRisk);
+        }
+
+        return Math.max(nonNegativeRisk, minimumFraudRisk);
+    }
+
+    private record ReportMetrics(int fraudCases, double riskScore) {
     }
 
 

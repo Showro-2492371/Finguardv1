@@ -1,10 +1,21 @@
 package org.cts.adm.finguard.CustomerOnboarding.Dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class CustomerSignupRequest {
 
+    @NotBlank(message = "Name is required")
+    @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
     private String name;
+
+    @NotBlank(message = "Contact info is required")
     private String contactInfo;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
+
     private boolean mfaEnabled;
 
     public String getName() {

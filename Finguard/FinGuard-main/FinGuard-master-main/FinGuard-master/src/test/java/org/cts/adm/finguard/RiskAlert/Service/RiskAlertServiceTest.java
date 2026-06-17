@@ -4,14 +4,13 @@ import org.cts.adm.finguard.RiskAlert.Enum.RiskAlertStatus;
 import org.cts.adm.finguard.RiskAlert.Exception.RiskAlertNotFoundException;
 import org.cts.adm.finguard.RiskAlert.Model.RiskAlert;
 import org.cts.adm.finguard.RiskAlert.Repository.RiskAlertRepository;
+import org.cts.adm.finguard.TransactionMonitoring.Enum.TransactionStatus;
 import org.cts.adm.finguard.TransactionMonitoring.Model.Transaction;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -34,16 +33,12 @@ class RiskAlertServiceTest {
 	@InjectMocks
 	private RiskAlertService riskAlertService;
 
-	@BeforeEach
-	void setUp() {
-		ReflectionTestUtils.setField(riskAlertService, "escalationThreshold", new BigDecimal("80"));
-	}
-
 	@Test
 	void evaluateAndCreateAlert_setsNewForLowRiskScore() {
 		Transaction transaction = new Transaction();
 		transaction.setTransactionId("tx-1");
 		transaction.setRiskScore(20);
+		transaction.setStatus(TransactionStatus.SUCCESS);
 
 		when(riskAlertRepository.findByTransactionId("tx-1")).thenReturn(Optional.empty());
 		when(riskAlertRepository.save(any(RiskAlert.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -55,10 +50,11 @@ class RiskAlertServiceTest {
 	}
 
 	@Test
-	void evaluateAndCreateAlert_preservesClosedStatusOnReevaluation() {
+	void evaluateAndCreateAlert_preservesResolvedStatusOnReevaluation() {
 		Transaction transaction = new Transaction();
 		transaction.setTransactionId("tx-2");
 		transaction.setRiskScore(95);
+		transaction.setStatus(TransactionStatus.BLOCKED);
 
 		RiskAlert existing = new RiskAlert();
 		existing.setAlertId(10L);
@@ -70,7 +66,7 @@ class RiskAlertServiceTest {
 
 		RiskAlert alert = riskAlertService.evaluateAndCreateAlert(transaction);
 
-		assertEquals(RiskAlertStatus.CLOSED, alert.getStatus());
+		assertEquals(RiskAlertStatus.RESOLVED, alert.getStatus());
 		assertEquals(new BigDecimal("95"), alert.getRiskScore());
 	}
 
@@ -98,9 +94,9 @@ class RiskAlertServiceTest {
 		when(riskAlertRepository.findById(26L)).thenReturn(Optional.of(alert));
 		when(riskAlertRepository.save(any(RiskAlert.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-		RiskAlert updated = riskAlertService.updateStatus(26L, RiskAlertStatus.REVIEWED);
+		RiskAlert updated = riskAlertService.updateStatus(26L, RiskAlertStatus.RESOLVED);
 
-		assertEquals(RiskAlertStatus.REVIEWED, updated.getStatus());
+		assertEquals(RiskAlertStatus.RESOLVED, updated.getStatus());
 		verify(riskAlertRepository, times(1)).save(alert);
 	}
 

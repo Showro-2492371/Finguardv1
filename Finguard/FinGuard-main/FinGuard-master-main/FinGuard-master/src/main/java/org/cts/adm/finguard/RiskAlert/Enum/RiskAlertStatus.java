@@ -2,9 +2,19 @@ package org.cts.adm.finguard.RiskAlert.Enum;
 
 public enum RiskAlertStatus {
     NEW,
+    /**
+     * Kept only for backward compatibility with historical rows.
+     * Current workflow does not create REVIEWED directly.
+     */
+    @Deprecated
     REVIEWED,
     ESCALATED,
     RESOLVED,
+    /**
+     * Kept only for backward compatibility with historical rows.
+     * Current workflow does not create CLOSED directly.
+     */
+    @Deprecated
     CLOSED,
     /**
      * Legacy transaction status values kept for backward compatibility.
@@ -28,9 +38,9 @@ public enum RiskAlertStatus {
             return null;
         }
         return switch (status) {
-            case BLOCKED -> ESCALATED;
-            case SUCCESS -> RESOLVED;
-            case FLAGGED -> NEW;
+            case SUCCESS -> NEW;
+            case FLAGGED, BLOCKED, REVIEWED -> ESCALATED;
+            case CLOSED -> RESOLVED;
             default -> status;
         };
     }

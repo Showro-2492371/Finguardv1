@@ -66,6 +66,19 @@ public class TransactionMonitoringService {
     }
 
 
+    /**
+     * Returns all transactions for the given customer, newest first.
+     * Used by the customer portal transaction-history view.
+     */
+    public List<FraudCheckResponse> getTransactionsByCustomer(Long customerId) {
+        logger.info("Fetching transaction history for customerId={}", customerId);
+        return transactionMonitoringRepository
+                .findByCustomerCustomerIdOrderByCreatedAtDesc(customerId)
+                .stream()
+                .map(t -> toResponse(t, t.getRiskScore() != null && t.getRiskScore() >= FLAG_THRESHOLD))
+                .toList();
+    }
+
     public FraudCheckResponse detectFraud(TransactionRequest transactionRequest) {
         logger.info("Detecting fraud for customerId={} amount={} channel={}",
                 transactionRequest.getCustomerId(), transactionRequest.getAmount(), transactionRequest.getChannel());

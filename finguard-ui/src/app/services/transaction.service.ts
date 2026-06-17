@@ -29,6 +29,11 @@ export class TransactionService {
     return this.http.post<FraudCheckResponse>(`${this.BASE}/detectFraud`, req);
   }
 
+  /** Fetch full transaction history for a customer from the server */
+  getTransactionHistory(customerId: number): Observable<FraudCheckResponse[]> {
+    return this.http.get<FraudCheckResponse[]>(`${this.BASE}/history/${customerId}`);
+  }
+
   clearHistory(): void {
     this.historySubject.next([]);
   }

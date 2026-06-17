@@ -22,13 +22,15 @@ export class RiskAlertsPageComponent implements OnInit {
   private svc = inject(RiskAlertService);
 
   loading = signal(false);
+  resolvingId = signal<number | null>(null);
+  successMsg = signal('');
   errorMsg = signal('');
   alerts = signal<RiskAlertResponse[]>([]);
   expandedId = signal<number | null>(null);
   statusFilter: RiskAlertStatus | '' = '';
   parseDate = parseBackendDate;
 
-  statuses: Array<RiskAlertStatus | ''> = ['', 'NEW', 'REVIEWED', 'ESCALATED', 'RESOLVED', 'CLOSED'];
+  statuses: Array<RiskAlertStatus | ''> = ['', 'NEW', 'ESCALATED', 'RESOLVED'];
 
   ngOnInit() { this.load(); }
 
@@ -44,6 +46,28 @@ export class RiskAlertsPageComponent implements OnInit {
       error: err => {
         this.loading.set(false);
         this.errorMsg.set(err?.error?.message || 'Failed to load alerts.');
+      }
+    });
+  }
+
+  canResolve(status: RiskAlertStatus): boolean {
+    return status === 'ESCALATED';
+  }
+
+  resolveAlert(alertId: number) {
+    this.resolvingId.set(alertId);
+    this.errorMsg.set('');
+    this.successMsg.set('');
+
+    this.svc.updateAlertStatus(alertId, 'RESOLVED').subscribe({
+      next: () => {
+        this.resolvingId.set(null);
+        this.successMsg.set(`Alert ${alertId} resolved successfully.`);
+        this.load();
+      },
+      error: err => {
+        this.resolvingId.set(null);
+        this.errorMsg.set(err?.error?.message || 'Failed to resolve alert.');
       }
     });
   }

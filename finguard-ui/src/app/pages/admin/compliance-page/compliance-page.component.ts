@@ -123,13 +123,17 @@ export class CompliancePageComponent {
     this.csvPreview.set(null);
   }
 
+  hasRiskMismatch(report: ComplianceReportDTO): boolean {
+    return report.fraudCases > 0 && report.riskScore <= 0;
+  }
+
   askDelete(id: number) { this.deleteTarget.set(id); }
   cancelDelete()       { this.deleteTarget.set(null); }
   confirmDelete() {
     const id = this.deleteTarget();
     if (!id) return;
     this.deleteTarget.set(null);
-    this.svc.deleteReport(id).subscribe({
+    this.svc.deleteReport(id, this.user).subscribe({
       next: () => { this.successMsg.set('Report deleted.'); this.loadAll(); },
       error: err => this.errorMsg.set(err?.error?.message || 'Delete failed.')
     });

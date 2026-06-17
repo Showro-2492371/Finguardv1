@@ -8,6 +8,9 @@
   @if (errorMsg()) {
     <app-alert-banner type="error" [message]="errorMsg()" (dismissed)="errorMsg.set('')" />
   }
+  @if (successMsg()) {
+    <app-alert-banner type="success" [message]="successMsg()" (dismissed)="successMsg.set('')" />
+  }
 
   <div class="filter-bar">
     <label>Filter by Status:</label>
@@ -42,7 +45,15 @@
                   <td><app-status-badge [status]="a.riskLevel" size="sm" /></td>
                   <td><app-status-badge [status]="a.status" size="sm" /></td>
                   <td>{{ parseDate(a.alertDate) | date:'dd MMM yy, HH:mm' }}</td>
-                  <td><button class="btn-sm" (click)="toggleExpand(a.alertId)">👁 {{ expandedId() === a.alertId ? 'Hide' : 'Details' }}</button></td>
+                  <td class="action-cell">
+                    <button class="btn-sm" (click)="toggleExpand(a.alertId)">👁 {{ expandedId() === a.alertId ? 'Hide' : 'Details' }}</button>
+                    @if (canResolve(a.status)) {
+                      <button class="btn-sm resolve" (click)="resolveAlert(a.alertId)" [disabled]="resolvingId() === a.alertId">
+                        @if (resolvingId() === a.alertId) { ⏳ } @else { ✓ }
+                        Resolve
+                      </button>
+                    }
+                  </td>
                 </tr>
                 @if (expandedId() === a.alertId) {
                   <tr class="expand-row">

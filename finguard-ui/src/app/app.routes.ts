@@ -11,6 +11,7 @@ import { AdminDashboardComponent } from './pages/admin/admin-dashboard/admin-das
 import { RiskAlertsPageComponent } from './pages/admin/risk-alerts-page/risk-alerts-page.component';
 import { CompliancePageComponent } from './pages/admin/compliance-page/compliance-page.component';
 import { KycManagementPageComponent } from './pages/admin/kyc-management-page/kyc-management-page.component';
+import { AnalyticsPageComponent } from './pages/admin/analytics-page/analytics-page.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'user/login', pathMatch: 'full' },
@@ -40,7 +41,8 @@ export const routes: Routes = [
       { path: 'dashboard',         component: AdminDashboardComponent },
       { path: 'risk-alerts',       component: RiskAlertsPageComponent },
       { path: 'compliance',        component: CompliancePageComponent },
-      { path: 'kyc-management',    component: KycManagementPageComponent }
+      { path: 'kyc-management',    component: KycManagementPageComponent },
+      { path: 'analytics',         component: AnalyticsPageComponent }
     ]
   },
   { path: '**', redirectTo: 'user/login' }

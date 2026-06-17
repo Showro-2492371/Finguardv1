@@ -8,6 +8,7 @@ import org.cts.adm.finguard.Jwt.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,13 +22,15 @@ public class CustomerLoginService {
 
     private final CustomerRepository customerRepository;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     public CustomerLoginService(CustomerRepository customerRepository,
-                                JwtUtil jwtUtil) {
+                                JwtUtil jwtUtil,
+                                PasswordEncoder passwordEncoder) {
         this.customerRepository = customerRepository;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
-
 
     public String login(String name, String password) {
 
@@ -38,13 +41,16 @@ public class CustomerLoginService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
 
+        // Use BCrypt's constant-time matches() – prevents timing attacks
         Customer customer = customers.stream()
-                .filter(candidate -> password.equals(candidate.getPassword()))
+                .filter(candidate -> credentialMatches(candidate, password))
                 .findFirst()
                 .orElseThrow(() -> {
                     logger.warn("Login failed: invalid password for name={}", name);
                     return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
                 });
+
+        migrateLegacyPasswordIfNeeded(customer, password);
 
         if (customer.getRole() == Role.ROLE_USER) {
             AccountStatus accountStatus = customer.getAccountStatus() != null
@@ -70,27 +76,6 @@ public class CustomerLoginService {
     }
 
 
-//    public String login(String name, String password) {
-//
-//        logger.info("Login attempt started for customer name={}", name);
-//
-//        Customer customer = customerRepository.findCustomersByName(name)
-//                .orElseThrow(() -> {
-//                    logger.warn("Login failed: user not found for name={}", name);
-//                    return new RuntimeException("User not found");
-//                });
-//
-//        if (!password.equals(customer.getPassword())) {
-//            logger.warn("Login failed: invalid password for name={}", name);
-//            throw new RuntimeException("Invalid password");
-//        }
-//
-//        String token = jwtUtil.generateToken(name);
-//
-//        logger.info("Login successful for customer name={}", name);
-//        return token;
-//    }
-
     public Customer getCustomerByName(String name) {
         logger.debug("Fetching customer by name={}", name);
         List<Customer> customers = customerRepository.findAllByName(name);
@@ -100,5 +85,34 @@ public class CustomerLoginService {
     public Customer getCustomerById(Long id) {
         logger.debug("Fetching customer by id={}", id);
         return customerRepository.findCustomerByCustomerId(id);
+    }
+
+    private boolean credentialMatches(Customer candidate, String rawPassword) {
+        String storedPassword = candidate.getPassword();
+        if (storedPassword == null || rawPassword == null) {
+            return false;
+        }
+
+        if (isBcryptHash(storedPassword)) {
+            return passwordEncoder.matches(rawPassword, storedPassword);
+        }
+
+        // Legacy fallback for historical plaintext rows.
+        return rawPassword.equals(storedPassword);
+    }
+
+    private void migrateLegacyPasswordIfNeeded(Customer customer, String rawPassword) {
+        String storedPassword = customer.getPassword();
+        if (storedPassword == null || isBcryptHash(storedPassword)) {
+            return;
+        }
+
+        customer.setPassword(passwordEncoder.encode(rawPassword));
+        customerRepository.save(customer);
+        logger.info("Migrated legacy plaintext password to BCrypt for customerId={}", customer.getCustomerId());
+    }
+
+    private boolean isBcryptHash(String value) {
+        return value.startsWith("$2a$") || value.startsWith("$2b$") || value.startsWith("$2y$");
     }
 }

@@ -32,7 +32,13 @@
           @for (r of allReports(); track r.reportId) {
             <tr>
               <td>{{ r.reportId }}</td><td>{{ r.customerId }}</td>
-              <td>{{ r.fraudCases }}</td><td>{{ r.riskScore | number:'1.0-2' }}</td>
+              <td>{{ r.fraudCases }}</td>
+              <td>
+                {{ r.riskScore | number:'1.0-2' }}
+                @if (hasRiskMismatch(r)) {
+                  <span class="risk-warning" title="Fraud cases exist but risk score is zero">⚠</span>
+                }
+              </td>
               <td>{{ parseDate(r.generatedDate) | date:'dd MMM yy, HH:mm' }}</td>
               <td class="action-cell">
                 <button class="btn-sm" (click)="exportCsv(r.customerId)" [disabled]="csvLoading()">
@@ -75,7 +81,12 @@
                   <td>{{ row.reportId }}</td>
                   <td>{{ row.customerId }}</td>
                   <td>{{ row.fraudCases }}</td>
-                  <td>{{ row.riskScore | number:'1.0-2' }}</td>
+                  <td>
+                    {{ row.riskScore | number:'1.0-2' }}
+                    @if (hasRiskMismatch(row)) {
+                      <span class="risk-warning" title="Fraud cases exist but risk score is zero">⚠</span>
+                    }
+                  </td>
                   <td>{{ parseDate(row.generatedDate) | date:'dd MMM yyyy, HH:mm:ss' }}</td>
                 </tr>
               }
@@ -104,7 +115,12 @@
             <tbody>
               @for (r of genAllResult(); track r.reportId) {
                 <tr><td>{{ r.reportId }}</td><td>{{ r.customerId }}</td><td>{{ r.fraudCases }}</td>
-                  <td>{{ r.riskScore | number:'1.0-2' }}</td>
+                  <td>
+                    {{ r.riskScore | number:'1.0-2' }}
+                    @if (hasRiskMismatch(r)) {
+                      <span class="risk-warning" title="Fraud cases exist but risk score is zero">⚠</span>
+                    }
+                  </td>
                   <td>{{ parseDate(r.generatedDate) | date:'dd MMM yy' }}</td></tr>
               }
             </tbody>
@@ -156,7 +172,12 @@
           <tbody>
             @for (r of filterResult(); track r.reportId) {
               <tr><td>{{ r.reportId }}</td><td>{{ r.customerId }}</td><td>{{ r.fraudCases }}</td>
-                <td>{{ r.riskScore | number:'1.0-2' }}</td>
+                <td>
+                  {{ r.riskScore | number:'1.0-2' }}
+                  @if (hasRiskMismatch(r)) {
+                    <span class="risk-warning" title="Fraud cases exist but risk score is zero">⚠</span>
+                  }
+                </td>
                 <td>{{ parseDate(r.generatedDate) | date:'dd MMM yy, HH:mm' }}</td></tr>
             }
           </tbody>

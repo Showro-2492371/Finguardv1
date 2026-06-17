@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cts.adm.finguard.ComplianceReporting.DTO.ComplianceReportDTO;
 import org.cts.adm.finguard.ComplianceReporting.Model.AuditTrail;
 import org.cts.adm.finguard.ComplianceReporting.Service.ComplianceService;
-import org.cts.adm.finguard.CustomerOnboarding.Model.Customer;
-import org.cts.adm.finguard.CustomerOnboarding.Service.CustomerLoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -29,16 +27,13 @@ class ComplianceControllerTest {
     @Mock
     private ComplianceService service;
 
-    @Mock
-    private CustomerLoginService customerLoginService;
-
     private ComplianceController controller;
     private ObjectMapper mapper = new ObjectMapper();
 
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
-        controller = new ComplianceController(service, customerLoginService);
+        controller = new ComplianceController(service);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -90,8 +85,6 @@ class ComplianceControllerTest {
 
     @Test
     void testExportCSV() throws Exception {
-        Customer c = new Customer();
-        when(customerLoginService.getCustomerById(8L)).thenReturn(c);
         when(service.exportReport(8L, "user")).thenReturn("reports/report_customer_8.csv");
 
         mockMvc.perform(get("/api/compliance/export/csv/8").param("user", "user"))
@@ -101,7 +94,7 @@ class ComplianceControllerTest {
 
     @Test
     void testDeleteReport() throws Exception {
-        doNothing().when(service).deleteReport(4L);
+        doNothing().when(service).deleteReport(4L, "system");
 
         mockMvc.perform(delete("/api/compliance/reports/4"))
                 .andExpect(status().isOk())

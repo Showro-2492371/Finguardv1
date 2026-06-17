@@ -39,8 +39,10 @@ export class ComplianceService {
     });
   }
 
-  deleteReport(id: number): Observable<string> {
-    return this.http.delete(`${this.BASE}/reports/${id}`, { responseType: 'text' });
+  deleteReport(id: number, user?: string): Observable<string> {
+    let params = new HttpParams();
+    if (user) params = params.set('user', user);
+    return this.http.delete(`${this.BASE}/reports/${id}`, { params, responseType: 'text' });
   }
 
   filterReports(filters: {

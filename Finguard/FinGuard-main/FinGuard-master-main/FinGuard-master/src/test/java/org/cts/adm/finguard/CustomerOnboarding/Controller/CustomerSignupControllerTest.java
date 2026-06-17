@@ -46,6 +46,6 @@ class CustomerSignupControllerTest {
         mockMvc.perform(post("/api/customer/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 }

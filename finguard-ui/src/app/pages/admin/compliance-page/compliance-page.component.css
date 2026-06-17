@@ -57,6 +57,7 @@ input:focus{border-color:var(--color-primary);}
 .csv-table th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--color-primary);border-bottom:2px solid var(--color-border);}
 .csv-table td{padding:10px 16px;border-bottom:1px solid var(--color-border);}
 .csv-table tr:hover td{background:var(--surface-hover);}
+.risk-warning{color:#d97706;font-weight:700;margin-left:6px;cursor:help;}
 .csv-raw-section{border-top:1px solid var(--color-border);padding:16px 20px;}
 .csv-raw-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--color-text-muted);margin-bottom:10px;}
 .csv-raw{background:#1a2332;color:#a8d8a8;padding:16px;border-radius:8px;font-family:'Courier New',monospace;font-size:13px;line-height:1.7;overflow-x:auto;white-space:pre;margin:0;}

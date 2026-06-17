@@ -11,6 +11,7 @@ import org.cts.adm.finguard.RiskAlert.Repository.RiskAlertRepository;
 import org.cts.adm.finguard.TransactionMonitoring.Model.Transaction;
 import org.cts.adm.finguard.TransactionMonitoring.Repository.TransactionMonitoringRepository;
 import org.cts.adm.finguard.CustomerOnboarding.Model.Customer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -45,6 +46,11 @@ class ComplianceServiceTest {
 
     @InjectMocks
     private org.cts.adm.finguard.ComplianceReporting.Service.ComplianceService service;
+
+    @BeforeEach
+    void defaultStubs() {
+        lenient().when(riskAlertRepo.findByCustomerId(anyLong())).thenReturn(Collections.emptyList());
+    }
 
     // From earlier tests: generateReports success
     @Test
@@ -85,7 +91,7 @@ class ComplianceServiceTest {
     void testDeleteReportNotFound() {
         when(complianceRepo.findByCustomerId(1L)).thenReturn(Collections.emptyList());
 
-        assertThrows(ResourceNotFoundException.class, () -> service.deleteReport(1L));
+        assertThrows(ResourceNotFoundException.class, () -> service.deleteReport(1L, "admin"));
     }
 
     @Test
@@ -100,9 +106,10 @@ class ComplianceServiceTest {
 
         when(complianceRepo.findByCustomerId(1L)).thenReturn(List.of(report));
 
-        service.deleteReport(1L);
+        service.deleteReport(1L, "admin");
 
         verify(complianceRepo, times(1)).deleteByCustomerId(1L);
+        verify(auditRepo, times(1)).save(any(AuditTrail.class));
     }
 
     @Test

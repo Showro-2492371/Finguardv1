@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -16,6 +17,9 @@ class CustomerSignupServiceTest {
 
     @Mock
     private CustomerRepository customerRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private CustomerSignupService customerSignupService;
@@ -28,6 +32,8 @@ class CustomerSignupServiceTest {
         customer.setContactInfo("john@test.com");
         customer.setPassword("password123");
         customer.setMfaEnabled(false);
+
+        Mockito.when(passwordEncoder.encode("password123")).thenReturn("hashed-password");
 
         customerSignupService.SignUp(customer);
 
@@ -42,6 +48,8 @@ class CustomerSignupServiceTest {
         customer.setContactInfo("john@test.com");
         customer.setPassword("password123");
         customer.setMfaEnabled(false);
+
+        Mockito.when(passwordEncoder.encode("password123")).thenReturn("hashed-password");
 
         Mockito.when(customerRepository.save(Mockito.any()))
                 .thenThrow(new RuntimeException("DB Error"));

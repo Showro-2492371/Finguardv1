@@ -1,5 +1,5 @@
 export type RiskAlertStatus =
-  | 'NEW' | 'REVIEWED' | 'ESCALATED' | 'RESOLVED' | 'CLOSED';
+  | 'NEW' | 'ESCALATED' | 'RESOLVED';
 
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | 'UNKNOWN';
 

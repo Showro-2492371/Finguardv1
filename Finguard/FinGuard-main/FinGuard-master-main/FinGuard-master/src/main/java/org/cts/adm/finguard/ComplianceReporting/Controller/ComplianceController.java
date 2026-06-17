@@ -1,16 +1,13 @@
 package org.cts.adm.finguard.ComplianceReporting.Controller;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cts.adm.finguard.ComplianceReporting.DTO.ComplianceReportDTO;
-import org.cts.adm.finguard.ComplianceReporting.Model.ComplianceReport;
 import org.cts.adm.finguard.ComplianceReporting.Service.ComplianceService;
-import org.cts.adm.finguard.CustomerOnboarding.Model.Customer;
-import org.cts.adm.finguard.CustomerOnboarding.Repository.CustomerRepository;
-import org.cts.adm.finguard.CustomerOnboarding.Service.CustomerLoginService;
+import org.cts.adm.finguard.Jwt.JwtUser;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.cts.adm.finguard.ComplianceReporting.Model.AuditTrail;
 
@@ -25,13 +22,10 @@ import java.util.Map;
 public class ComplianceController {
 
     private final ComplianceService service;
-    private final CustomerLoginService customerLoginService;
 
-    public ComplianceController(ComplianceService service ,CustomerLoginService customerLoginService)
+    public ComplianceController(ComplianceService service)
     {
         this.service = service;
-        this.customerLoginService = customerLoginService;
-
     }
 
 
@@ -77,11 +71,6 @@ public class ComplianceController {
     public ResponseEntity<String> exportCSV(@PathVariable Long id,
                                             @RequestParam String user) throws IOException {
 
-      Customer  customer = customerLoginService.getCustomerById(id);
-      if(customer == null){
-          System.out.println("No customer");
-      }
-
         String file = service.exportReport(id, user);
 
         return ResponseEntity.ok("CSV generated at: " + file);
@@ -89,9 +78,28 @@ public class ComplianceController {
 
     @DeleteMapping("/reports/{customerId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public String delete(@PathVariable Long customerId) {
-        service.deleteReport(customerId);
+    public String delete(@PathVariable Long customerId,
+                         @RequestParam(required = false) String user,
+                         Authentication authentication) {
+        String actor = resolveActor(user, authentication);
+        service.deleteReport(customerId, actor);
         return "Deleted";
+    }
+
+    private String resolveActor(String requestedUser, Authentication authentication) {
+        if (requestedUser != null && !requestedUser.isBlank()) {
+            return requestedUser;
+        }
+
+        if (authentication != null && authentication.getPrincipal() instanceof JwtUser jwtUser) {
+            return jwtUser.getUsername();
+        }
+
+        if (authentication != null && authentication.getName() != null) {
+            return authentication.getName();
+        }
+
+        return "system";
     }
 
 

@@ -6,8 +6,8 @@ import org.cts.adm.finguard.RiskAlert.Enum.RiskAlertStatus;
 import org.cts.adm.finguard.RiskAlert.Exception.RiskAlertNotFoundException;
 import org.cts.adm.finguard.RiskAlert.Model.RiskAlert;
 import org.cts.adm.finguard.RiskAlert.Repository.RiskAlertRepository;
+import org.cts.adm.finguard.TransactionMonitoring.Enum.TransactionStatus;
 import org.cts.adm.finguard.TransactionMonitoring.Model.Transaction;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,9 +31,6 @@ public class RiskAlertService {
     private static final Map<RiskAlertStatus, EnumSet<RiskAlertStatus>> ALLOWED_TRANSITIONS = buildTransitionMap();
 
     private final RiskAlertRepository riskAlertRepository;
-
-    @Value("${risk.escalation-threshold:80}")
-    private BigDecimal escalationThreshold;
 
     /**
      * Calculates risk score for a transaction
@@ -82,7 +79,7 @@ public class RiskAlertService {
         log.info("Evaluating risk for transaction: {}", transactionId);
 
         BigDecimal riskScore = calculateRiskScore(transaction);
-        RiskAlertStatus computedStatus = determineStatus(riskScore);
+        RiskAlertStatus computedStatus = determineStatus(transaction);
 
         // Find existing alert or create new one
         RiskAlert alert = riskAlertRepository.findByTransactionId(transactionId)
@@ -132,6 +129,10 @@ public class RiskAlertService {
             throw new IllegalArgumentException("Status is required");
         }
 
+        if (targetStatus != RiskAlertStatus.RESOLVED) {
+            throw new IllegalArgumentException("Only RESOLVED can be set by admin updates");
+        }
+
         if (currentStatus != null && currentStatus == targetStatus) {
             return alert;
         }
@@ -148,12 +149,19 @@ public class RiskAlertService {
     }
 
     /**
-     * Determines alert status based on risk score
+     * Maps transaction outcome into risk alert status:
+     * SUCCESS -> NEW, FLAGGED/BLOCKED -> ESCALATED.
      */
-    private RiskAlertStatus determineStatus(BigDecimal riskScore) {
-        return riskScore.compareTo(escalationThreshold) >= 0
-                ? RiskAlertStatus.ESCALATED
-                : RiskAlertStatus.NEW;
+    private RiskAlertStatus determineStatus(Transaction transaction) {
+        TransactionStatus transactionStatus = transaction.getStatus();
+        if (transactionStatus == null) {
+            return RiskAlertStatus.NEW;
+        }
+
+        return switch (transactionStatus) {
+            case SUCCESS -> RiskAlertStatus.NEW;
+            case FLAGGED, BLOCKED -> RiskAlertStatus.ESCALATED;
+        };
     }
 
     private RiskAlertStatus resolveStatusForReevaluation(RiskAlertStatus existingStatus,
@@ -162,28 +170,19 @@ public class RiskAlertService {
             return computedStatus;
         }
 
-        // Keep terminal decisions stable unless explicitly changed by admin workflow.
-        if (existingStatus == RiskAlertStatus.CLOSED || existingStatus == RiskAlertStatus.RESOLVED) {
+        // Keep RESOLVED stable unless workflow explicitly reopens in future revisions.
+        if (existingStatus == RiskAlertStatus.RESOLVED) {
             return existingStatus;
         }
 
-        // Do not automatically downgrade escalated/reviewed alerts during re-evaluation.
-        if (existingStatus == RiskAlertStatus.ESCALATED || existingStatus == RiskAlertStatus.REVIEWED) {
-            return existingStatus;
-        }
-
-        // NEW alerts can be auto-escalated when the current score crosses the threshold.
-        if (existingStatus == RiskAlertStatus.NEW && computedStatus == RiskAlertStatus.ESCALATED) {
-            return RiskAlertStatus.ESCALATED;
-        }
-
-        return existingStatus;
+        return computedStatus;
     }
 
     private void validateTransition(RiskAlertStatus currentStatus, RiskAlertStatus targetStatus) {
         if (currentStatus == null) {
             return;
         }
+
         EnumSet<RiskAlertStatus> allowed = ALLOWED_TRANSITIONS.getOrDefault(currentStatus, EnumSet.noneOf(RiskAlertStatus.class));
         if (!allowed.contains(targetStatus)) {
             throw new IllegalArgumentException(
@@ -205,19 +204,20 @@ public class RiskAlertService {
 
     private Set<RiskAlertStatus> getCompatibleStatuses(RiskAlertStatus normalizedFilter) {
         return switch (normalizedFilter) {
-            case NEW -> EnumSet.of(RiskAlertStatus.NEW, RiskAlertStatus.FLAGGED);
-            case ESCALATED -> EnumSet.of(RiskAlertStatus.ESCALATED, RiskAlertStatus.BLOCKED);
-            case RESOLVED -> EnumSet.of(RiskAlertStatus.RESOLVED, RiskAlertStatus.SUCCESS);
+            case NEW -> EnumSet.of(RiskAlertStatus.NEW, RiskAlertStatus.SUCCESS);
+            case ESCALATED -> EnumSet.of(RiskAlertStatus.ESCALATED, RiskAlertStatus.FLAGGED,
+                    RiskAlertStatus.BLOCKED, RiskAlertStatus.REVIEWED);
+            case RESOLVED -> EnumSet.of(RiskAlertStatus.RESOLVED, RiskAlertStatus.CLOSED);
             default -> EnumSet.of(normalizedFilter);
         };
     }
 
     private static Map<RiskAlertStatus, EnumSet<RiskAlertStatus>> buildTransitionMap() {
         Map<RiskAlertStatus, EnumSet<RiskAlertStatus>> map = new EnumMap<>(RiskAlertStatus.class);
-        map.put(RiskAlertStatus.NEW, EnumSet.of(RiskAlertStatus.REVIEWED, RiskAlertStatus.ESCALATED, RiskAlertStatus.CLOSED));
-        map.put(RiskAlertStatus.REVIEWED, EnumSet.of(RiskAlertStatus.ESCALATED, RiskAlertStatus.RESOLVED, RiskAlertStatus.CLOSED));
-        map.put(RiskAlertStatus.ESCALATED, EnumSet.of(RiskAlertStatus.REVIEWED, RiskAlertStatus.RESOLVED, RiskAlertStatus.CLOSED));
-        map.put(RiskAlertStatus.RESOLVED, EnumSet.of(RiskAlertStatus.CLOSED));
+        map.put(RiskAlertStatus.NEW, EnumSet.noneOf(RiskAlertStatus.class));
+        map.put(RiskAlertStatus.REVIEWED, EnumSet.of(RiskAlertStatus.RESOLVED));
+        map.put(RiskAlertStatus.ESCALATED, EnumSet.of(RiskAlertStatus.RESOLVED));
+        map.put(RiskAlertStatus.RESOLVED, EnumSet.noneOf(RiskAlertStatus.class));
         map.put(RiskAlertStatus.CLOSED, EnumSet.noneOf(RiskAlertStatus.class));
         return Collections.unmodifiableMap(map);
     }
