@@ -10,6 +10,7 @@ public class CustomerSignupRequest {
     private String name;
 
     @NotBlank(message = "Contact info is required")
+    @Size(min = 10, max = 10, message = "Contact info must be exactly 10 characters (e.g., phone number)")
     private String contactInfo;
 
     @NotBlank(message = "Password is required")

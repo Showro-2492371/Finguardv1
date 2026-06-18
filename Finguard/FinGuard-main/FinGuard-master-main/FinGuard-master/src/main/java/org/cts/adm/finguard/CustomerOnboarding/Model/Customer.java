@@ -1,6 +1,7 @@
 package org.cts.adm.finguard.CustomerOnboarding.Model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import org.cts.adm.finguard.CustomerOnboarding.Eunm.AccountStatus;
 import org.cts.adm.finguard.CustomerOnboarding.Eunm.KycStatus;
 import org.cts.adm.finguard.CustomerOnboarding.Eunm.Role;
@@ -21,6 +22,7 @@ public class Customer {
     private String name;
 
     @Column(nullable = false, unique = true)
+    @Size(min = 10, max = 10, message = "Contact info must be exactly 10 characters")
     private String contactInfo;
 
     @Enumerated(EnumType.STRING)

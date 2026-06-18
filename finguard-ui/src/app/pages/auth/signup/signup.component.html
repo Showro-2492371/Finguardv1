@@ -26,9 +26,15 @@
 
       <div class="field">
         <label>Contact Info</label>
-        <input type="text" formControlName="contactInfo" placeholder="Email or phone number" />
-        @if (form.get('contactInfo')?.invalid && form.get('contactInfo')?.touched) {
+        <input type="text" formControlName="contactInfo" placeholder="Enter Phone Number" />
+        @if (form.get('contactInfo')?.errors?.['required'] && form.get('contactInfo')?.touched) {
           <span class="err">Contact info is required</span>
+        }
+        @if (form.get('contactInfo')?.errors?.['minlength'] && form.get('contactInfo')?.touched) {
+          <span class="err">Contact info must be exactly 10 characters</span>
+        }
+        @if (form.get('contactInfo')?.errors?.['maxlength'] && form.get('contactInfo')?.touched) {
+          <span class="err">Contact info must be exactly 10 characters</span>
         }
       </div>
 
