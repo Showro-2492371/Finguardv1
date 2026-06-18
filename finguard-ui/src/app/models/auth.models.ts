@@ -10,6 +10,12 @@ export interface SignupRequest {
   mfaEnabled: boolean;
 }
 
+export interface ApiMessageResponse {
+  status: string;
+  message: string;
+  code?: string;
+}
+
 export interface JwtPayload {
   sub: string;
   customerId: number;
