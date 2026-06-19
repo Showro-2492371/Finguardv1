@@ -100,6 +100,13 @@
             "proxyConfig": "src/proxy.conf.json"
           },
           "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "buildTarget": "finguard-ui:build:development",
+            "tsConfig": "tsconfig.spec.json"
+          }
         }
       }
     }

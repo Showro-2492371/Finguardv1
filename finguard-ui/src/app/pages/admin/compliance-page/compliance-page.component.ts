@@ -1,4 +1,4 @@
-import { Component, inject, signal, PLATFORM_ID } from '@angular/core';
+import { Component, inject, signal, PLATFORM_ID, OnInit } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -27,7 +27,7 @@ export interface CsvPreview {
   templateUrl: './compliance-page.component.html',
   styleUrl: './compliance-page.component.css'
 })
-export class CompliancePageComponent {
+export class CompliancePageComponent implements OnInit {
   private svc = inject(ComplianceService);
   private auth = inject(AuthService);
   private platformId = inject(PLATFORM_ID);
@@ -41,6 +41,7 @@ export class CompliancePageComponent {
   // Tab 1
   allReports = signal<ComplianceReportDTO[]>([]);
   deleteTarget = signal<number | null>(null);
+  deleteTargetReport = signal<ComplianceReportDTO | null>(null);
   csvPreview = signal<CsvPreview | null>(null);
   csvLoading = signal(false);
 
@@ -58,6 +59,10 @@ export class CompliancePageComponent {
   auditLogs = signal<AuditTrail[]>([]);
 
   get user() { return this.auth.getUsername(); }
+
+  ngOnInit(): void {
+    this.loadAll();
+  }
 
   switchTab(tab: 'all'|'generate'|'filter'|'audit') {
     this.activeTab.set(tab);
@@ -127,8 +132,8 @@ export class CompliancePageComponent {
     return report.fraudCases > 0 && report.riskScore <= 0;
   }
 
-  askDelete(id: number) { this.deleteTarget.set(id); }
-  cancelDelete()       { this.deleteTarget.set(null); }
+  askDelete(report: ComplianceReportDTO) { this.deleteTarget.set(report.reportId); this.deleteTargetReport.set(report); }
+  cancelDelete()       { this.deleteTarget.set(null); this.deleteTargetReport.set(null); }
   confirmDelete() {
     const id = this.deleteTarget();
     if (!id) return;

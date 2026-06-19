@@ -3,13 +3,14 @@ package org.cts.adm.finguard.ComplianceReporting.Controller;
 import lombok.extern.slf4j.Slf4j;
 import org.cts.adm.finguard.ComplianceReporting.DTO.ComplianceReportDTO;
 import org.cts.adm.finguard.ComplianceReporting.Service.ComplianceService;
-import org.cts.adm.finguard.Jwt.JwtUser;
+import org.cts.adm.finguard.CustomerOnboarding.Service.CustomerLoginService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.cts.adm.finguard.ComplianceReporting.Model.AuditTrail;
+import org.cts.adm.finguard.Jwt.JwtUser;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -22,10 +23,13 @@ import java.util.Map;
 public class ComplianceController {
 
     private final ComplianceService service;
+    private final CustomerLoginService customerLoginService;
 
-    public ComplianceController(ComplianceService service)
+    public ComplianceController(ComplianceService service ,CustomerLoginService customerLoginService)
     {
         this.service = service;
+        this.customerLoginService = customerLoginService;
+
     }
 
 
@@ -76,30 +80,14 @@ public class ComplianceController {
         return ResponseEntity.ok("CSV generated at: " + file);
     }
 
-    @DeleteMapping("/reports/{customerId}")
+    @DeleteMapping("/reports/{reportId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public String delete(@PathVariable Long customerId,
+    public String delete(@PathVariable Long reportId,
                          @RequestParam(required = false) String user,
                          Authentication authentication) {
         String actor = resolveActor(user, authentication);
-        service.deleteReport(customerId, actor);
+        service.deleteReport(reportId, actor);
         return "Deleted";
-    }
-
-    private String resolveActor(String requestedUser, Authentication authentication) {
-        if (requestedUser != null && !requestedUser.isBlank()) {
-            return requestedUser;
-        }
-
-        if (authentication != null && authentication.getPrincipal() instanceof JwtUser jwtUser) {
-            return jwtUser.getUsername();
-        }
-
-        if (authentication != null && authentication.getName() != null) {
-            return authentication.getName();
-        }
-
-        return "system";
     }
 
 
@@ -127,5 +115,21 @@ public class ComplianceController {
     @PreAuthorize("hasRole('ADMIN')")
     public List<AuditTrail> getAuditLogs() {
         return service.getAuditLogs();
+    }
+
+    private String resolveActor(String requestedUser, Authentication authentication) {
+        if (requestedUser != null && !requestedUser.isBlank()) {
+            return requestedUser;
+        }
+
+        if (authentication != null && authentication.getPrincipal() instanceof JwtUser jwtUser) {
+            return jwtUser.getUsername();
+        }
+
+        if (authentication != null && authentication.getName() != null) {
+            return authentication.getName();
+        }
+
+        return "system";
     }
 }

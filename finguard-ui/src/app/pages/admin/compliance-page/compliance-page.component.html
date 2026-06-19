@@ -44,7 +44,7 @@
                 <button class="btn-sm" (click)="exportCsv(r.customerId)" [disabled]="csvLoading()">
                   @if (csvLoading()) { ⏳ } @else { 📥 } Export CSV
                 </button>
-                <button class="btn-sm danger" (click)="askDelete(r.customerId)">🗑️ Delete</button>
+                <button class="btn-sm danger" (click)="askDelete(r)">🗑️ Delete</button>
               </td>
             </tr>
           }
@@ -206,7 +206,7 @@
 
 @if (deleteTarget()) {
   <app-confirm-dialog
-    message="Delete all compliance reports for customer {{ deleteTarget() }}? This cannot be undone."
+    message="Delete Report #{{ deleteTargetReport()?.reportId }} for Customer {{ deleteTargetReport()?.customerId }}? This cannot be undone."
     (confirmed)="confirmDelete()"
     (cancelled)="cancelDelete()" />
 }

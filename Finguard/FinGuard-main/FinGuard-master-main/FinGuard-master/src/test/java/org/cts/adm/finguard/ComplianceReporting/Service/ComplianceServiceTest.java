@@ -89,7 +89,7 @@ class ComplianceServiceTest {
 
     @Test
     void testDeleteReportNotFound() {
-        when(complianceRepo.findByCustomerId(1L)).thenReturn(Collections.emptyList());
+        when(complianceRepo.findById(1L)).thenReturn(java.util.Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> service.deleteReport(1L, "admin"));
     }
@@ -104,11 +104,11 @@ class ComplianceServiceTest {
                 .generatedDate(LocalDateTime.now())
                 .build();
 
-        when(complianceRepo.findByCustomerId(1L)).thenReturn(List.of(report));
+        when(complianceRepo.findById(1L)).thenReturn(java.util.Optional.of(report));
 
         service.deleteReport(1L, "admin");
 
-        verify(complianceRepo, times(1)).deleteByCustomerId(1L);
+        verify(complianceRepo, times(1)).deleteById(1L);
         verify(auditRepo, times(1)).save(any(AuditTrail.class));
     }
 

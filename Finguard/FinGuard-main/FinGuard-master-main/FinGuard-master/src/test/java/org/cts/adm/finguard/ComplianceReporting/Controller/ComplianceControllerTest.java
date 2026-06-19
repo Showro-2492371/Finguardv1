@@ -1,9 +1,9 @@
 package org.cts.adm.finguard.ComplianceReporting.Controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cts.adm.finguard.ComplianceReporting.DTO.ComplianceReportDTO;
 import org.cts.adm.finguard.ComplianceReporting.Model.AuditTrail;
 import org.cts.adm.finguard.ComplianceReporting.Service.ComplianceService;
+import org.cts.adm.finguard.CustomerOnboarding.Service.CustomerLoginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -27,13 +27,15 @@ class ComplianceControllerTest {
     @Mock
     private ComplianceService service;
 
+    @Mock
+    private CustomerLoginService customerLoginService;
+
     private ComplianceController controller;
-    private ObjectMapper mapper = new ObjectMapper();
 
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
-        controller = new ComplianceController(service);
+        controller = new ComplianceController(service, customerLoginService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
