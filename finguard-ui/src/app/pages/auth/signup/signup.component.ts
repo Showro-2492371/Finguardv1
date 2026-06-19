@@ -34,7 +34,7 @@ export class SignupComponent {
 
   form = this.fb.group({
     name:            ['', Validators.required],
-    contactInfo:     ['', Validators.required],
+    contactInfo:     ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10)]],
     password:        ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', Validators.required],
     mfaEnabled:      [false]
@@ -78,7 +78,7 @@ export class SignupComponent {
       },
       error: err => {
         this.loading.set(false);
-        this.errorMsg.set(err?.error?.message || err?.message || 'Registration failed. Please try again.');
+        this.errorMsg.set(this.auth.extractApiErrorMessage(err, 'Registration failed. Please try again.'));
       }
     });
   }
