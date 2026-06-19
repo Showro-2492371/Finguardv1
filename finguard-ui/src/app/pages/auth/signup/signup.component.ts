@@ -78,11 +78,8 @@ export class SignupComponent {
       },
       error: err => {
         this.loading.set(false);
-        this.errorMsg.set(this.auth.extractApiErrorMessage(err, 'Registration failed. Please try again.'));
+        this.errorMsg.set(err?.error?.message || err?.error || 'Registration failed. Please try again.');
       }
     });
   }
 }
-
-
-

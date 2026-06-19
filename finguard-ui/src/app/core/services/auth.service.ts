@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { jwtDecode } from 'jwt-decode';
-import { Observable, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { JwtPayload, SignupRequest } from '../../models/auth.models';
 
 @Injectable({ providedIn: 'root' })
@@ -26,7 +26,9 @@ export class AuthService {
   }
 
   signup(req: SignupRequest): Observable<void> {
-    return this.http.post<void>('/api/customer/signup', req);
+    return this.http
+      .post('/api/customer/signup', req, { responseType: 'text' })
+      .pipe(map(() => void 0));
   }
 
   getToken(): string | null {
