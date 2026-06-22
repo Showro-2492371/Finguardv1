@@ -53,7 +53,7 @@
     }
 
     @if (csvLoading()) {
-      <div class="csv-loading"><app-loading-spinner size="sm" /> Generating CSV preview...</div>
+      <div class="csv-loading"><app-loading-spinner size="sm" /> Generating and fetching CSV from backend...</div>
     }
 
     @if (csvPreview(); as preview) {
@@ -69,30 +69,26 @@
           </div>
         </div>
 
-        <div class="tbl-wrap">
-          <table class="csv-table">
-            <thead><tr>
-              <th>ReportId</th><th>CustomerId</th><th>FraudCases</th>
-              <th>RiskScore</th><th>GeneratedDate</th>
-            </tr></thead>
-            <tbody>
-              @for (row of preview.rows; track row.reportId) {
-                <tr>
-                  <td>{{ row.reportId }}</td>
-                  <td>{{ row.customerId }}</td>
-                  <td>{{ row.fraudCases }}</td>
-                  <td>
-                    {{ row.riskScore | number:'1.0-2' }}
-                    @if (hasRiskMismatch(row)) {
-                      <span class="risk-warning" title="Fraud cases exist but risk score is zero">⚠</span>
+        @if (preview.headers.length > 0) {
+          <div class="tbl-wrap">
+            <table class="csv-table">
+              <thead><tr>
+                @for (header of preview.headers; track $index) {
+                  <th>{{ header }}</th>
+                }
+              </tr></thead>
+              <tbody>
+                @for (row of preview.rows; track $index) {
+                  <tr>
+                    @for (cell of row; track $index) {
+                      <td>{{ cell }}</td>
                     }
-                  </td>
-                  <td>{{ parseDate(row.generatedDate) | date:'dd MMM yyyy, HH:mm:ss' }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
 
         <div class="csv-raw-section">
           <div class="csv-raw-title">Raw CSV Content</div>
@@ -100,9 +96,10 @@
         </div>
       </div>
     }
+
   }
 
-  <!-- TAB: Generate -->
+
   @if (activeTab() === 'generate' && !loading()) {
     <div class="gen-grid">
       <div class="card">
@@ -148,19 +145,19 @@
     </div>
   }
 
-  <!-- TAB: Filter -->
+
   @if (activeTab() === 'filter' && !loading()) {
     <div class="card">
       <h3>Filter Reports</h3>
       <div class="filter-grid">
         <div class="field"><label>Start Date</label>
-          <input type="date" [ngModel]="filterStart()" (ngModelChange)="filterStart.set($event)" /></div>
+          <input type="date" [ngModel]="filters().start" (ngModelChange)="setFilter('start', $event)" /></div>
         <div class="field"><label>End Date</label>
-          <input type="date" [ngModel]="filterEnd()" (ngModelChange)="filterEnd.set($event)" /></div>
+          <input type="date" [ngModel]="filters().end" (ngModelChange)="setFilter('end', $event)" /></div>
         <div class="field"><label>Month (1–12)</label>
-          <input type="number" min="1" max="12" [ngModel]="filterMonth()" (ngModelChange)="filterMonth.set($event)" placeholder="Month" /></div>
+          <input type="number" min="1" max="12" [ngModel]="filters().month" (ngModelChange)="setFilter('month', $event)" placeholder="Month" /></div>
         <div class="field"><label>Year</label>
-          <input type="number" [ngModel]="filterYear()" (ngModelChange)="filterYear.set($event)" placeholder="e.g. 2026" /></div>
+          <input type="number" [ngModel]="filters().year" (ngModelChange)="setFilter('year', $event)" placeholder="e.g. 2026" /></div>
       </div>
       <div class="btn-row">
         <button class="btn-primary" (click)="runFilter()">🔍 Filter</button>
@@ -186,7 +183,6 @@
     </div>
   }
 
-  <!-- TAB: Audit -->
   @if (activeTab() === 'audit' && !loading()) {
     @if (auditLogs().length === 0) {
       <div class="empty">No audit logs found.</div>
@@ -206,7 +202,7 @@
 
 @if (deleteTarget()) {
   <app-confirm-dialog
-    message="Delete Report #{{ deleteTargetReport()?.reportId }} for Customer {{ deleteTargetReport()?.customerId }}? This cannot be undone."
+    message="Delete Report #{{ deleteTarget()?.reportId }} for Customer {{ deleteTarget()?.customerId }}? This cannot be undone."
     (confirmed)="confirmDelete()"
     (cancelled)="cancelDelete()" />
 }
