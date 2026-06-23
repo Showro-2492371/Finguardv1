@@ -38,9 +38,9 @@ class CustomerSignupControllerTest {
     void createCustomer_success() throws Exception {
 
         CustomerSignupRequest request = new CustomerSignupRequest();
-        request.setName("John Test " + System.currentTimeMillis());
-        request.setContactInfo("john" + System.currentTimeMillis() + "@test.com");
-        request.setPassword("password123");
+        request.setName("Test");
+        request.setContactInfo("1234567899");
+        request.setPassword("Test@1234");
         request.setMfaEnabled(false);
 
         mockMvc.perform(post("/api/customer/signup")
