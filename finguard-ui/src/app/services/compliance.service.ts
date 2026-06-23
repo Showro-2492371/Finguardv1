@@ -39,6 +39,10 @@ export class ComplianceService {
     });
   }
 
+  fetchGeneratedCsv(customerId: number): Observable<string> {
+    return this.http.get(`${this.BASE}/download-csv/${customerId}`, { responseType: 'text' });
+  }
+
   deleteReport(id: number, user?: string): Observable<string> {
     let params = new HttpParams();
     if (user) params = params.set('user', user);

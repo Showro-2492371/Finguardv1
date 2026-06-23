@@ -13,6 +13,9 @@ import org.cts.adm.finguard.ComplianceReporting.Model.AuditTrail;
 import org.cts.adm.finguard.Jwt.JwtUser;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +81,28 @@ public class ComplianceController {
         String file = service.exportReport(id, user);
 
         return ResponseEntity.ok("CSV generated at: " + file);
+    }
+
+    @GetMapping("/download-csv/{customerId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> downloadCsv(@PathVariable Long customerId) throws IOException {
+        String filePath = "reports/report_customer_" + customerId + ".csv";
+        Path path = Paths.get(filePath);
+
+        if (!Files.exists(path)) {
+            log.warn("CSV file not found: {}", filePath);
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            String csvContent = Files.readString(path);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "text/csv; charset=utf-8")
+                    .body(csvContent);
+        } catch (IOException e) {
+            log.error("Error reading CSV file: {}", filePath, e);
+            return ResponseEntity.status(500).body("Error reading CSV file: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/reports/{reportId}")
