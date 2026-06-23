@@ -64,15 +64,7 @@
       }
     </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions mt">
-      <button class="btn-primary" (click)="generateAll()" [disabled]="genLoading()">
-        @if (genLoading()) { <span class="spin"></span> } 🔄 Generate All Reports
-      </button>
-      <a routerLink="/admin/compliance" class="btn-secondary">📋 View Compliance Reports</a>
-      <a routerLink="/admin/kyc-management" class="btn-secondary">🔍 KYC Management</a>
-      <a routerLink="/admin/analytics" class="btn-secondary">📊 Fraud Analytics</a>
-    </div>
+
   }
 </div>
 
