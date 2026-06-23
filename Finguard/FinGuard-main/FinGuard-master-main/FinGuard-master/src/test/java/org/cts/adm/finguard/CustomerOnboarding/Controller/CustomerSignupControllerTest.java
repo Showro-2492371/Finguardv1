@@ -36,7 +36,6 @@ class CustomerSignupControllerTest {
 
     @Test
     void createCustomer_success() throws Exception {
-
         CustomerSignupRequest request = new CustomerSignupRequest();
         request.setName("Test");
         request.setContactInfo("1234567899");
